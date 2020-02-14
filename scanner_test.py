@@ -62,7 +62,7 @@ def open_files():
         standard_name = ds[var_id].standard_name
         long_name = ds[var_id].long_name
         # vars = ds.data_vars
-        coords = ds.coords._names
+        coords = str(ds.coords._names)
         lat_max = str(np.max(lat_values))
         lat_min = str(np.min(lat_values))
         lon_max = str(np.max(lon_values))

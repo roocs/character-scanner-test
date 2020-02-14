@@ -13,4 +13,19 @@
     "units": "kg m-2 s-1",
     "standard_name": "heterotrophic_respiration_carbon_flux",
     "long_name": "Carbon Mass Flux into Atmosphere due to Heterotrophic Respiration on Land",
-    "coords": 
+    "coords": "{'lon', 'lat', 'time'}",
+    "lat_max": "90.0",
+    "lat_min": "-90.0",
+    "lon_max": "358.125",
+    "lon_min": "0.0",
+    "time_long_name": "time",
+    "time_standard_name": "time",
+    "shape": [
+        1752,
+        145,
+        192
+    ],
+    "start_date": "1859-12-16 00:00:00",
+    "end_date": "2005-11-16 00:00:00",
+    "time_axis_length": 1752
+}
