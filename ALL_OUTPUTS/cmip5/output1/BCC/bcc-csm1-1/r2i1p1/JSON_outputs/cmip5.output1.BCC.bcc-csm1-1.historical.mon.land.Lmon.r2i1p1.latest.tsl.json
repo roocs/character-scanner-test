@@ -1,0 +1,32 @@
+{
+    "calendar": "noleap",
+    "coords": "{'depth', 'lon', 'lat', 'time'}",
+    "end_date": "2012-12-16 12:00:00",
+    "experiment_id": "historical",
+    "frequency": "mon",
+    "institute_id": "BCC",
+    "lat_max": "87.86380004882812",
+    "lat_min": "-87.86380004882812",
+    "lon_max": "357.1875",
+    "lon_min": "0.0",
+    "long_name": "Temperature of Soil",
+    "max_value": "nan",
+    "min_value": "nan",
+    "model_id": "bcc-csm1-1",
+    "modelling_realm": "land",
+    "parent_experiment_rip": "r1i1p1",
+    "project_id": "CMIP5",
+    "shape": [
+        1956,
+        10,
+        64,
+        128
+    ],
+    "standard_name": "soil_temperature",
+    "start_date": "1850-01-16 12:00:00",
+    "time_axis_length": 1956,
+    "time_long_name": "time",
+    "time_standard_name": "time",
+    "units": "K",
+    "variable": "tsl"
+}
