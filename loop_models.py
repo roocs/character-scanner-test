@@ -11,19 +11,24 @@ def arg_parse():
     parser = argparse.ArgumentParser()
 
     model_choices = options.models
+    experiment_choices = options.experiments
     ensemble_choices = options.ensembles
     variable_choices = options.variables
 
     parser.add_argument('-m', '--model', type=str, default=model_choices,
-                        help=f'Institue and model combination to run statistic on, '
+                        help=f'Institue and model combination to scan, '
+                             f'can be one or many of: {model_choices}. '
+                             f'Default is all models.', metavar='', nargs='*')
+    parser.add_argument('-exp', '--experiment', type=str, default=experiment_choices,
+                        help=f'Experiemnt ID to scan, '
                              f'can be one or many of: {model_choices}. '
                              f'Default is all models.', metavar='', nargs='*')
     parser.add_argument('-e', '--ensemble', type=str, default=ensemble_choices,
-                        help=f'Ensemble to run statistic on, can be one or many of: '
+                        help=f'Ensemble to scan, can be one or many of: '
                              f'{ensemble_choices}. Default is all ensembles.', metavar='',
                         nargs='*')
     parser.add_argument('-v', '--var_id', choices=variable_choices, default=variable_choices,
-                        help=f'Variable to run statistic on, can be one or many of: '
+                        help=f'Variable to scan, can be one or many of: '
                              f'{variable_choices}. Default is all variables.', metavar='',
                         nargs='*')
     return parser.parse_args()

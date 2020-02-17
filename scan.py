@@ -18,13 +18,13 @@ def arg_parse():
     variable_choices = options.variables
 
     parser.add_argument('-m', '--model', nargs=1, type=str, choices=model_choices,
-                        required=True, help=f'Institue and model combination to run statistic on, '
+                        required=True, help=f'Institue and model combination to scan, '
                                             f'must be one of: {model_choices}', metavar='')
     parser.add_argument('-e', '--ensemble', nargs=1, type=str, choices=ensemble_choices,
-                        required=True, help=f'Ensemble to run statistic on, must be one of: '
+                        required=True, help=f'Ensemble to scan, must be one of: '
                                             f'{ensemble_choices}', metavar='')
     parser.add_argument('-v', '--var_id', choices=variable_choices, default=variable_choices,
-                        help=f'Variable to run statistic on, can be one or many of: '
+                        help=f'Variable to scan, can be one or many of: '
                              f'{variable_choices}. Default is all variables.', metavar='',
                         nargs='*')
 

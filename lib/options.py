@@ -16,7 +16,7 @@ models = ['BCC/bcc-csm1-1', 'BCC/bcc-csm1-1-m', 'BNU/BNU-ESM', 'CCCma/CanAM4', '
           'NSF-DOE-NCAR/CESM1-CAM5-1-FV2', 'NSF-DOE-NCAR/CESM1-FASTCHEM',
           'NSF-DOE-NCAR/CESM1-WACCM']
 
-experiment_id = ['1pctCO2', 'abrupt4xCO2', 'amip', 'amip4K', 'amip4xCO2', 'amipFuture', 'decadal1960', 'decadal1961',
+experiments = ['1pctCO2', 'abrupt4xCO2', 'amip', 'amip4K', 'amip4xCO2', 'amipFuture', 'decadal1960', 'decadal1961',
 'decadal1962', 'decadal1963', 'decadal1964', 'decadal1965', 'decadal1966', 'decadal1967', 'decadal1968',
 'decadal1969', 'decadal1970', 'decadal1971', 'decadal1972', 'decadal1973', 'decadal1974', 'decadal1975',
 'decadal1976', 'decadal1977', 'decadal1978', 'decadal1979', 'decadal1980', 'decadal1981', 'decadal1982',
