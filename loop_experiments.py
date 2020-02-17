@@ -15,10 +15,9 @@ def arg_parse():
     ensemble_choices = options.ensembles
     variable_choices = options.variables
 
-    parser.add_argument('-m', '--model', type=str, default=model_choices,
-                        help=f'Institue and model combination to scan, '
-                             f'can be one or many of: {model_choices}. '
-                             f'Default is all models.', metavar='', nargs='*')
+    parser.add_argument('-m', '--model', nargs=1, type=str, default=model_choices,
+                        required=True, help=f'Institue and model combination to scan, '
+                                            f'must be one of: {model_choices}', metavar='')
     parser.add_argument('-exp', '--experiment', type=str, default=experiment_choices,
                         help=f'experiment to scan, '
                              f'can be one or many of: {experiment_choices}. '
@@ -34,18 +33,18 @@ def arg_parse():
     return parser.parse_args()
 
 
-def loop_over_models(args):
+def loop_over_experiments(args):
     current_directory = os.getcwd()
 
-    experiments = ' '.join(args.experiment)
     ensembles = ' '.join(args.ensemble)
+    experiments = ' '.join(args.experiment)
     variables = ' '.join(args.var_id)
 
     # iterate over models
     for model in args.model:
 
         # calls loop_ensembles.py from command line
-        cmd = f"{current_directory}/loop_experiments.py -m {model} -exp {experiments} -e " \
+        cmd = f"{current_directory}/loop_ensembles.py -m {model} -exp {experiments} -e " \
               f"{ensembles} -v {variables}"
         subprocess.call(cmd, shell=True)
 
@@ -54,7 +53,7 @@ def main():
     """Runs script if called on command line"""
 
     args = arg_parse()
-    loop_over_models(args)
+    loop_over_experiments(args)
 
 
 if __name__ == '__main__':
