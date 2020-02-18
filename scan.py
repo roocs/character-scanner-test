@@ -14,27 +14,31 @@ def arg_parse():
     parser = argparse.ArgumentParser()
 
     model_choices = options.models
+    experiment_choices = options.experiments
     ensemble_choices = options.ensembles
     variable_choices = options.variables
 
     parser.add_argument('-m', '--model', nargs=1, type=str, choices=model_choices,
-                        required=True, help=f'Institue and model combination to run statistic on, '
+                        required=True, help=f'Institue and model combination to scan, '
                                             f'must be one of: {model_choices}', metavar='')
+    parser.add_argument('-exp', '--experiment', nargs=1, type=str, default=experiment_choices,
+                        required=True, help=f'Experiment to scan, '
+                                            f'must be one of: {experiment_choices}', metavar='')
     parser.add_argument('-e', '--ensemble', nargs=1, type=str, choices=ensemble_choices,
-                        required=True, help=f'Ensemble to run statistic on, must be one of: '
+                        required=True, help=f'Ensemble to scan, must be one of: '
                                             f'{ensemble_choices}', metavar='')
     parser.add_argument('-v', '--var_id', choices=variable_choices, default=variable_choices,
-                        help=f'Variable to run statistic on, can be one or many of: '
+                        help=f'Variable to scan, can be one or many of: '
                              f'{variable_choices}. Default is all variables.', metavar='',
                         nargs='*')
 
     return parser.parse_args()
 
 
-def find_files(model, ensemble, var_id):
-    pattern = '/badc/cmip5/data/cmip5/output1/{model}/historical/mon/land' \
+def find_files(model, experiment, ensemble, var_id):
+    pattern = '/badc/cmip5/data/cmip5/output1/{model}/{experiment}/mon/land' \
               '/Lmon/{ensemble}/latest/{var_id}/*.nc'
-    glob_pattern = pattern.format(model=model, ensemble=ensemble, var_id=var_id)
+    glob_pattern = pattern.format(model=model, experiment=experiment, ensemble=ensemble, var_id=var_id)
     nc_files = glob.glob(glob_pattern)
 
     return nc_files
@@ -44,21 +48,21 @@ def loop_over_vars(args):
     # turn arguments into string
     model = ' '.join(args.model)
     ensemble = ' '.join(args.ensemble)
+    experiment = ' '.join(args.experiment)
     for var_id in args.var_id:
-        make_json(model, ensemble, var_id)
+        make_json(model, experiment, ensemble, var_id)
 
 
-def make_json(model, ensemble, var_id):
+def make_json(model, experiment, ensemble, var_id):
     # get current working directory
-    current_directory = os.getcwd()  
-
-    print(model, ensemble, var_id)
+    current_directory = os.getcwd()
+    
     # create directory to log errors
     error_log_path = SETTINGS.ERROR_LOG_PATH.format(
-        current_directory=current_directory, model=model, ensemble=ensemble)
+        current_directory=current_directory, model=model, ensemble=ensemble, experiment=experiment)
 
     # get files
-    nc_files = find_files(model, ensemble, var_id)
+    nc_files = find_files(model, experiment, ensemble, var_id)
     
     if not nc_files:
 
@@ -93,7 +97,7 @@ def make_json(model, ensemble, var_id):
     # do the same for the one above as well)
 
     # extract characteristics
-    # dims = ds.dims
+    dims = ds.dims
     calendar = ds.time.values[0].calendar
     max_value = str(np.max(values))
     min_value = str(np.min(values))
@@ -119,7 +123,7 @@ def make_json(model, ensemble, var_id):
 
     # Generate file path
     output_path = SETTINGS.JSON_OUTPUT_PATH.format(
-        current_directory=current_directory, model=model, ensemble=ensemble)
+        current_directory=current_directory, model=model, ensemble=ensemble, experiment=experiment)
 
     # make output directory
     if not os.path.exists(output_path):
@@ -129,8 +133,9 @@ def make_json(model, ensemble, var_id):
     model = model.replace('/', '.')
 
     # Output to JSON file
-    with open(os.path.join(output_path, f"cmip5.output1.{model}.historical.mon.land.Lmon.{ensemble}.latest.{var_id}.json"), "w") as write_file:
+    with open(os.path.join(output_path, f"cmip5.output1.{model}.{experiment}.mon.land.Lmon.{ensemble}.latest.{var_id}.json"), "w") as write_file:
         json.dump({"project_id": project_id,
+                   "dims": dims,
                    "institute_id": institute_id,
                    "model_id": model_id,
                    "experiment_id": experiment_id,
