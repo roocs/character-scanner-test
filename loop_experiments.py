@@ -37,14 +37,14 @@ def loop_over_experiments(args):
     current_directory = os.getcwd()
 
     ensembles = ' '.join(args.ensemble)
-    experiments = ' '.join(args.experiment)
+    model = ' '.join(args.model)
     variables = ' '.join(args.var_id)
 
     # iterate over models
-    for model in args.model:
+    for experiment in args.experiment:
 
         # calls loop_ensembles.py from command line
-        cmd = f"{current_directory}/loop_ensembles.py -m {model} -exp {experiments} -e " \
+        cmd = f"{current_directory}/loop_ensembles.py -m {model} -exp {experiment} -e " \
               f"{ensembles} -v {variables}"
         subprocess.call(cmd, shell=True)
 

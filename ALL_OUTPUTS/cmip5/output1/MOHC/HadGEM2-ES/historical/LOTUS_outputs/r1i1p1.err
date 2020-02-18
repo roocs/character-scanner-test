@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "/home/users/esmith88/roocs/character_scanner/scan.py", line 173, in <module>
-    main()
-  File "/home/users/esmith88/roocs/character_scanner/scan.py", line 168, in main
-    args = arg_parse()
-  File "/home/users/esmith88/roocs/character_scanner/scan.py", line 23, in arg_parse
-    parser.add_argument('-exp', '--experiment', nargs=1, type=str, default=experiment_choices,
-NameError: name 'experiment_choices' is not defined

@@ -14,6 +14,7 @@ def arg_parse():
     parser = argparse.ArgumentParser()
 
     model_choices = options.models
+    experiment_choices = options.experiments
     ensemble_choices = options.ensembles
     variable_choices = options.variables
 
@@ -34,7 +35,7 @@ def arg_parse():
     return parser.parse_args()
 
 
-def find_files(model, ensemble, var_id):
+def find_files(model, experiment, ensemble, var_id):
     pattern = '/badc/cmip5/data/cmip5/output1/{model}/{experiment}/mon/land' \
               '/Lmon/{ensemble}/latest/{var_id}/*.nc'
     glob_pattern = pattern.format(model=model, experiment=experiment, ensemble=ensemble, var_id=var_id)
@@ -49,19 +50,19 @@ def loop_over_vars(args):
     ensemble = ' '.join(args.ensemble)
     experiment = ' '.join(args.experiment)
     for var_id in args.var_id:
-        make_json(model, ensemble, var_id, experiment)
+        make_json(model, experiment, ensemble, var_id)
 
 
-def make_json(model, ensemble, var_id, experiment):
+def make_json(model, experiment, ensemble, var_id):
     # get current working directory
-    current_directory = os.getcwd()  
-
+    current_directory = os.getcwd()
+    
     # create directory to log errors
     error_log_path = SETTINGS.ERROR_LOG_PATH.format(
         current_directory=current_directory, model=model, ensemble=ensemble, experiment=experiment)
 
     # get files
-    nc_files = find_files(model, ensemble, var_id)
+    nc_files = find_files(model, experiment, ensemble, var_id)
     
     if not nc_files:
 
@@ -96,7 +97,7 @@ def make_json(model, ensemble, var_id, experiment):
     # do the same for the one above as well)
 
     # extract characteristics
-    # dims = ds.dims
+    dims = ds.dims
     calendar = ds.time.values[0].calendar
     max_value = str(np.max(values))
     min_value = str(np.min(values))
@@ -134,6 +135,7 @@ def make_json(model, ensemble, var_id, experiment):
     # Output to JSON file
     with open(os.path.join(output_path, f"cmip5.output1.{model}.{experiment}.mon.land.Lmon.{ensemble}.latest.{var_id}.json"), "w") as write_file:
         json.dump({"project_id": project_id,
+                   "dims": dims,
                    "institute_id": institute_id,
                    "model_id": model_id,
                    "experiment_id": experiment_id,

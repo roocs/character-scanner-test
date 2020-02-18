@@ -20,7 +20,7 @@ def arg_parse():
                              f'can be one or many of: {model_choices}. '
                              f'Default is all models.', metavar='', nargs='*')
     parser.add_argument('-exp', '--experiment', type=str, default=experiment_choices,
-                        help=f'experiment to scan, '
+                        help=f'Experiment to scan, '
                              f'can be one or many of: {experiment_choices}. '
                              f'Default is all experiments.', metavar='', nargs='*')
     parser.add_argument('-e', '--ensemble', type=str, default=ensemble_choices,

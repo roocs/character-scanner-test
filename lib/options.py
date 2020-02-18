@@ -57,10 +57,10 @@ table_id = ['3hr', '6hrLev', '6hrPlev', 'Amon', 'LImon', 'Lmon', 'OImon', 'Oclim
 #              'treeFracPrimDec', 'treeFracPrimEver', 'treeFracSecDec', 'treeFracSecEver', 'tsl']
 
 
-models = ['MOHC/HadGEM2-ES']
+models = ['MOHC/HadGEM2-ES', 'BCC/bcc-csm1-1']
 
-ensembles = ['r1i1p1']
+ensembles = ['r1i1p1', 'r1i2p1']
 
-variables = ['rh']
+variables = ['rh', 'cMisc']
 
-experiments = ['historical']
+experiments = ['historical', 'amip']
