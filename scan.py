@@ -62,12 +62,12 @@ def make_json(model, ensemble, var_id):
     
     if not nc_files:
 
-        if not os.path.exists(error_log_path):
-            os.makedirs(error_log_path)
+        # if not os.path.exists(error_log_path):
+        #     os.makedirs(error_log_path)
 
-        file = open(os.path.join(error_log_path, f'{var_id}.log'), 'w')  # creates empty file
-
-        file.write("Files do not exist")
+        # file = open(os.path.join(error_log_path, f'{var_id}.log'), 'w')  # creates empty file
+        #
+        # file.write("Files do not exist")
         return False
 
     # open files
