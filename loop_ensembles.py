@@ -12,12 +12,16 @@ def arg_parse():
     parser = argparse.ArgumentParser()
 
     model_choices = options.models
+    experiment_choices = options.experiments
     ensemble_choices = options.ensembles
     variable_choices = options.variables
 
     parser.add_argument('-m', '--model', nargs=1, type=str, default=model_choices,
                         required=True, help=f'Institue and model combination to scan, '
                                             f'must be one of: {model_choices}', metavar='')
+    parser.add_argument('-exp', '--experiment', nargs=1, type=str, default=experiment_choices,
+                        required=True, help=f'Experiment to scan, '
+                                            f'must be one of: {experiment_choices}', metavar='')
     parser.add_argument('-e', '--ensemble', type=str, default=ensemble_choices,
                         help=f'Ensemble to scan, can be one or many of: '
                              f'{ensemble_choices}. Default is all ensembles.', metavar='',
@@ -31,9 +35,10 @@ def arg_parse():
 
 def loop_over_ensembles(args):
     # turn arguments into string
+    experiment = ' '.join(args.experiment)
     model = ' '.join(args.model)
     variables = ' '.join(args.var_id)
-
+    
     # iterate over each ensemble
     for ensemble in args.ensemble:
 
@@ -42,7 +47,7 @@ def loop_over_ensembles(args):
 
         # define lotus output file path
         lotus_output_path = SETTINGS.LOTUS_OUTPUT_PATH_TMPL.format(
-            current_directory=current_directory, model=model)
+            current_directory=current_directory, model=model, experiment=experiment)
 
         # make output directory
         if not os.path.exists(lotus_output_path):
@@ -53,7 +58,7 @@ def loop_over_ensembles(args):
         # submit to lotus
         bsub_command = f"bsub -q {SETTINGS.QUEUE} -W {SETTINGS.WALLCLOCK} -o " \
                        f"{output_base}.out -e {output_base}.err {current_directory}" \
-                       f"/scan.py -m {model} -e {ensemble} -v {variables}"
+                       f"/scan.py -m {model} -exp {experiment} -e {ensemble} -v {variables}"
         subprocess.call(bsub_command, shell=True)
 
         print(f"running {bsub_command}")
