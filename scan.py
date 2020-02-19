@@ -94,10 +94,14 @@ def extract_characteristic(ds, extract_error_path, var_id):
         experiment_id = ds.experiment_id
         frequency = ds.frequency
         modeling_realm = ds.modeling_realm
-        # table_id = ds.table_id
-        parent_experiment_rip = ds.parent_experiment_rip
-        # version = ds.version --> extract from file path (maybe
-        # do the same for the one above as well)
+
+        table_id = ds.table_id.split(' ')[1]
+        realisation = ds.realization
+        initialisation_method = ds.initialization_method
+        physics_version = ds.physics_version
+        ensemble = f"r{realisation}i{initialisation_method}p{physics_version}"
+
+        print(table_id, realisation, initialisation_method, physics_version, ensemble)
 
         # extract characteristics
         # dims = ds.dims
@@ -128,9 +132,10 @@ def extract_characteristic(ds, extract_error_path, var_id):
             "institute_id": institute_id,
             "model_id": model_id,
             "experiment_id": experiment_id,
+            "ensemble": ensemble,
+            "table_id": table_id,
             "frequency": frequency,
             "modeling_realm": modeling_realm,
-            "parent_experiment_rip": parent_experiment_rip,
             "variable": var_id,
             "calendar": calendar,
             "max_value": max_value,
@@ -317,10 +322,12 @@ def scan(model, experiment, ensemble, var_id):
         return False
 
     # output to JSON file
+        # json file
     json_file_name = (
         f"cmip5.output1.{model.replace('/', '.')}.{experiment}.mon.land."
         f"Lmon.{ensemble}.latest.{var_id}.json"
     )
+
     output = output_to_JSON(
         characteristics, output_path, json_file_name, output_error_path, var_id
     )
