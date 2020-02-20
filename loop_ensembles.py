@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+"""
+Takes choices from the command line and passes to scan.py file for each ensemble
+"""
+
 import argparse
 import os
 
@@ -9,6 +14,12 @@ import SETTINGS
 
 
 def arg_parse():
+    """
+    Parses arguments given at the command line
+
+    :return: Namespace object built from attributes parsed from command line.
+    """
+
     parser = argparse.ArgumentParser()
 
     model_choices = options.models
@@ -61,6 +72,12 @@ def arg_parse():
 
 
 def loop_over_ensembles(args):
+    """
+    Runs scan for each of the ensembles listed
+
+    :param args: (namespace) Namespace object built from attributes parsed from command line
+    """
+
     # turn arguments into string
     experiment = " ".join(args.experiment)
     model = " ".join(args.model)

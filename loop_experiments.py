@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+"""
+Takes choices from the command line and passes to loop_ensembles.py file for each experiment
+"""
+
 import argparse
 import subprocess
 import os
@@ -7,6 +12,11 @@ from lib import options
 
 
 def arg_parse():
+    """
+    Parses arguments given at the command line
+
+    :return: Namespace object built from attributes parsed from command line.
+    """
 
     parser = argparse.ArgumentParser()
 
@@ -61,6 +71,12 @@ def arg_parse():
 
 
 def loop_over_experiments(args):
+    """
+    Runs loop ensembles for each of the experiments listed
+
+    :param args: (namespace) Namespace object built from attributes parsed from command line
+    """
+
     current_directory = os.getcwd()
 
     ensembles = " ".join(args.ensemble)

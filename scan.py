@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+"""
+Takes arguemnts from the command line and scans each dataset to extract the characteristics.
+Outputs the characteristics to a JSON file.
+Can be re-run if errors are fixed and will only run those which failed.
+"""
+
 import json
 import glob
 import os
@@ -13,6 +19,11 @@ from lib import options
 
 
 def arg_parse():
+    """
+    Parses arguments given at the command line
+
+    :return: Namespace object built from attributes parsed from command line.
+    """
     parser = argparse.ArgumentParser()
 
     model_choices = options.models
@@ -66,6 +77,16 @@ def arg_parse():
 
 
 def find_files(model, experiment, ensemble, var_id):
+    """
+    Finds files that correspond to the given arguments.
+
+    :param model: (string) Model chosen as argument at command line.
+    :param experiment: (string) Experiment chosen as argument at command line.
+    :param ensemble: (string) Ensemble chosen as argument at command line.
+    :param var_id: (string) Variable chosen as argument at command line.
+    :return: The netCDF files that correspond to the arguments.
+    """
+
     pattern = (
         "/badc/cmip5/data/cmip5/output1/{model}/{experiment}/mon/land"
         "/Lmon/{ensemble}/latest/{var_id}/*.nc"
@@ -78,6 +99,15 @@ def find_files(model, experiment, ensemble, var_id):
 
 
 def extract_characteristic(ds, extract_error_path, var_id):
+    """
+    Takes a dataset and extracts characteristics from it. If a characteristic
+    can't be extracted it creates an error file.
+
+    :param ds: (xarray.Dataset) The dataset to extract characteristics from.
+    :param extract_error_path: (string) The file path at which the error files are produced.
+    :param var_id: (string) The variable chosen as an argument at the command line.
+    :return characteristics: (dict) The extracted characteristics. Returned as a dictionary.
+    """
 
     try:
         # get values
@@ -170,6 +200,17 @@ def extract_characteristic(ds, extract_error_path, var_id):
 def output_to_JSON(
     characteristics, output_path, json_file_name, output_error_path, var_id
 ):
+    """
+    Outputs the extracted characteristics to a JSON file.
+    If the characteristics can't be output an error file is produced.
+
+    :param characteristics: (dict) The extracted characteristics.
+    :param output_path: (string) The file path at which the JSON file is produced.
+    :param json_file_name: (string) The name of the JSON file to be produced.
+    :param output_error_path: (string) The file path at which the error files are produced.
+    :param var_id: (string)The variable chosen as an argument at the command line.
+    :return : None
+    """
 
     # make output directory
     if not os.path.exists(output_path):
