@@ -1,3 +1,5 @@
 venv
 
 ALL_OUTPUTS
+
+*.pyc

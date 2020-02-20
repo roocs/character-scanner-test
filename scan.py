@@ -6,6 +6,7 @@ import os
 import xarray as xr
 import numpy as np
 import argparse
+from pathlib import Path
 
 import SETTINGS
 from lib import options
@@ -73,7 +74,6 @@ def find_files(model, experiment, ensemble, var_id):
         model=model, experiment=experiment, ensemble=ensemble, var_id=var_id
     )
     nc_files = glob.glob(glob_pattern)
-
     return nc_files
 
 
@@ -100,8 +100,6 @@ def extract_characteristic(ds, extract_error_path, var_id):
         initialisation_method = ds.initialization_method
         physics_version = ds.physics_version
         ensemble = f"r{realisation}i{initialisation_method}p{physics_version}"
-
-        print(table_id, realisation, initialisation_method, physics_version, ensemble)
 
         # extract characteristics
         # dims = ds.dims
@@ -191,6 +189,7 @@ def output_to_JSON(
             os.path.join(output_error_path, f"{var_id}.log"), "w"
         )  # creates empty file
         file.write(f"Error outputting to file: {exc}")
+        print(exc)
         return False
 
 
@@ -215,7 +214,7 @@ def loop_over_vars(args):
     percentage_failed = (failure_count / count) * 100
 
     print(
-        f"Completed job. Failure count = {failure_count}. Percentage failed = {percentage_failed}"
+        f"Completed job. Failure count = {failure_count}. Percentage failed = {percentage_failed}%"
     )
 
 
