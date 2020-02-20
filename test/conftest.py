@@ -14,5 +14,5 @@ def create_netcdf_file():
         test_file.createVariable("lat", "f4", ("lat",))
         test_file.createDimension("lon", 192)
         test_file.createVariable("lon", "f4", ("lon",))
-        
+
     return "test/data/test_file.nc"
