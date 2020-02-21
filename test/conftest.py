@@ -2,6 +2,7 @@ import pytest
 from netCDF4 import Dataset
 import os
 
+
 @pytest.fixture
 def create_netcdf_file():
     if not os.path.exists("test/data"):

@@ -125,7 +125,7 @@ def extract_characteristic(ds, extract_error_path, var_id):
         frequency = ds.frequency
         modeling_realm = ds.modeling_realm
 
-        table_id = ds.table_id.split(' ')[1]
+        table_id = ds.table_id.split(" ")[1]
         realisation = ds.realization
         initialisation_method = ds.initialization_method
         physics_version = ds.physics_version
@@ -235,6 +235,11 @@ def output_to_JSON(
 
 
 def loop_over_vars(args):
+    """
+    Loops over each variable listed and calls scan.
+
+    :param args: (namespace) Namespace object built from attributes parsed from command line
+    """
     # keep track of failures
     count = 0
     failure_count = 0
@@ -260,6 +265,16 @@ def loop_over_vars(args):
 
 
 def scan(model, experiment, ensemble, var_id):
+    """
+    Scans the dataset and produces a JSON file of the characteristics if no errors.
+    Keeps track of whether the job was successful or not.
+    Produces error files if an error occurs, otherwise produces a success file.
+
+    :param model: (string) Model chosen as argument at command line.
+    :param experiment: (string) Experiment chosen as argument at command line.
+    :param ensemble: (string) Ensemble chosen as argument at command line.
+    :param var_id: (string) Variable chosen as argument at command line.
+    """
 
     # get current working directory
     current_directory = os.getcwd()
@@ -362,7 +377,7 @@ def scan(model, experiment, ensemble, var_id):
         return False
 
     # output to JSON file
-        # json file
+    # json file
     json_file_name = (
         f"cmip5.output1.{model.replace('/', '.')}.{experiment}.mon.land."
         f"Lmon.{ensemble}.latest.{var_id}.json"
