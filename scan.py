@@ -132,30 +132,30 @@ def extract_characteristic(ds, extract_error_path, var_id):
         ensemble = f"r{realisation}i{initialisation_method}p{physics_version}"
 
         # extract characteristics
-        # dims = ds.dims
+        dims = dict(ds.dims)
         calendar = ds.time.values[0].calendar
-        max_value = str(np.max(values))
-        min_value = str(np.min(values))
+        max_value = float(values.max())
+        min_value = float(values.min())
         units = ds[var_id].units
         standard_name = ds[var_id].standard_name
         long_name = ds[var_id].long_name
         # vars = ds.data_vars
         coords = str(ds.coords._names)
-        lat_max = str(np.max(lat_values))
-        lat_min = str(np.min(lat_values))
-        lon_max = str(np.max(lon_values))
-        lon_min = str(np.min(lon_values))
+        lat_max = lat_values.max()
+        lat_min = lat_values.min()
+        lon_max = lon_values.max()
+        lon_min = lon_values.min()
         time_long_name = ds.time.long_name
         time_standard_name = ds.time.standard_name
-        # coord_values
         shape = ds[var_id].shape
-        # rank = ds.rank
+        rank = len(ds.dims)
         start_date = start_time.strftime("%Y-%m-%d %H:%M:%S")
         end_date = end_time.strftime("%Y-%m-%d %H:%M:%S")
         time_axis_length = len(ds.time)
         # fill_value =
 
         characteristics = {
+            "dims": dims,
             "project_id": project_id,
             "institute_id": institute_id,
             "model_id": model_id,
@@ -179,6 +179,7 @@ def extract_characteristic(ds, extract_error_path, var_id):
             "time_long_name": time_long_name,
             "time_standard_name": time_standard_name,
             "shape": shape,
+            "rank": rank,
             "start_date": start_date,
             "end_date": end_date,
             "time_axis_length": time_axis_length,
