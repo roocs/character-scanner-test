@@ -139,7 +139,7 @@ def extract_characteristic(ds, extract_error_path, var_id):
         units = ds[var_id].units
         standard_name = ds[var_id].standard_name
         long_name = ds[var_id].long_name
-        # vars = ds.data_vars
+        # vars = ds.data_vars -- list of variables
         coords = str(ds.coords._names)
         lat_max = lat_values.max()
         lat_min = lat_values.min()
