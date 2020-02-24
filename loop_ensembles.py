@@ -91,7 +91,7 @@ def loop_over_ensembles(args):
 
         # define lotus output file path
         lotus_output_path = SETTINGS.LOTUS_OUTPUT_PATH.format(
-            current_directory=current_directory, model=model, experiment=experiment
+            model=model, experiment=experiment
         )
 
         # make output directory

@@ -276,12 +276,8 @@ def scan(model, experiment, ensemble, var_id):
     :param var_id: (string) Variable chosen as argument at command line.
     """
 
-    # get current working directory
-    current_directory = os.getcwd()
-
     # Generate output file path
     output_path = SETTINGS.JSON_OUTPUT_PATH.format(
-        current_directory=current_directory,
         model=model,
         ensemble=ensemble,
         experiment=experiment,
@@ -289,31 +285,26 @@ def scan(model, experiment, ensemble, var_id):
 
     # create directories to log errors, failures and successes
     open_error_path = SETTINGS.OUTPUT_ERROR_PATH.format(
-        current_directory=current_directory,
         model=model,
         ensemble=ensemble,
         experiment=experiment,
     )
     success_path = SETTINGS.SUCCESS_PATH.format(
-        current_directory=current_directory,
         model=model,
         ensemble=ensemble,
         experiment=experiment,
     )
     no_files_path = SETTINGS.NO_FILES_PATH.format(
-        current_directory=current_directory,
         model=model,
         ensemble=ensemble,
         experiment=experiment,
     )
     extract_error_path = SETTINGS.EXTRACT_ERROR_PATH.format(
-        current_directory=current_directory,
         model=model,
         ensemble=ensemble,
         experiment=experiment,
     )
     output_error_path = SETTINGS.OUTPUT_ERROR_PATH.format(
-        current_directory=current_directory,
         model=model,
         ensemble=ensemble,
         experiment=experiment,
