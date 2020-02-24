@@ -1,297 +1,68 @@
-models = [
-    "BCC/bcc-csm1-1",
-    "BCC/bcc-csm1-1-m",
-    "BNU/BNU-ESM",
-    "CCCma/CanAM4",
-    "CCCma/CanCM4",
-    "CCCma/CanESM2",
-    "CMCC/CMCC-CESM",
-    "CMCC/CMCC-CM",
-    "CMCC/CMCC-CMS",
-    "CNRM-CERFACS/CNRM-CM5",
-    "CNRM-CERFACS/CNRM-CM5-2",
-    "COLA-CFS/CFSv2-2011",
-    "CSIRO-BOM/ACCESS1-0",
-    "CSIRO-BOM/ACCESS1-3",
-    "CSIRO-QCCCE/CSIRO-Mk3-6-0",
-    "FIO/FIO-ESM",
-    "ICHEC/EC-EARTH",
-    "INM/inmcm4",
-    "IPSL/IPSL-CM5A-LR",
-    "IPSL/IPSL-CM5A-MR",
-    "IPSL/IPSL-CM5B-LR",
-    "LASG-CESS/FGOALS-g2",
-    "LASG-IAP/FGOALS-gl",
-    "LASG-IAP/FGOALS-s2",
-    "MIROC/MIROC-ESM",
-    "MIROC/MIROC-ESM-CHEM",
-    "MIROC/MIROC4h",
-    "MIROC/MIROC5",
-    "MOHC/HadCM3",
-    "MOHC/HadGEM2-A",
-    "MOHC/HadGEM2-CC",
-    "MOHC/HadGEM2-ES",
-    "MPI-M/MPI-ESM-LR",
-    "MPI-M/MPI-ESM-MR",
-    "MPI-M/MPI-ESM-P",
-    "MRI/MRI-AGCM3-2H",
-    "MRI/MRI-AGCM3-2S",
-    "MRI/MRI-CGCM3",
-    "MRI/MRI-ESM1",
-    "NASA-GISS/GISS-E2-H",
-    "NASA-GISS/GISS-E2-H-CC",
-    "NASA-GISS/GISS-E2-R",
-    "NASA-GISS/GISS-E2-R-CC",
-    "NASA-GMAO/GEOS-5",
-    "NCAR/CCSM4",
-    "NCC/NorESM1-M",
-    "NCC/NorESM1-ME",
-    "NICAM/NICAM-09",
-    "NIMR-KMA/HadGEM2-AO",
-    "NOAA-GFDL/GFDL-CM2p1",
-    "NOAA-GFDL/GFDL-CM3",
-    "NOAA-GFDL/GFDL-ESM2G",
-    "NOAA-GFDL/GFDL-ESM2M",
-    "NOAA-GFDL/GFDL-HIRAM-C180",
-    "NOAA-GFDL/GFDL-HIRAM-C360",
-    "NOAA-NCEP/CFSv2-2011",
-    "NSF-DOE-NCAR/CESM1-BGC",
-    "NSF-DOE-NCAR/CESM1-CAM5",
-    "NSF-DOE-NCAR/CESM1-CAM5-1-FV2",
-    "NSF-DOE-NCAR/CESM1-FASTCHEM",
-    "NSF-DOE-NCAR/CESM1-WACCM",
-]
+project_base_dirs = {
+    'cmip5': '/badc/cmip5/data',
+    'cmip6': '/badc/cmip6/data',
+    'cordex': '/badc/cordex/data'
+}
 
-experiments = [
-    "1pctCO2",
-    "abrupt4xCO2",
-    "amip",
-    "amip4K",
-    "amip4xCO2",
-    "amipFuture",
-    "decadal1960",
-    "decadal1961",
-    "decadal1962",
-    "decadal1963",
-    "decadal1964",
-    "decadal1965",
-    "decadal1966",
-    "decadal1967",
-    "decadal1968",
-    "decadal1969",
-    "decadal1970",
-    "decadal1971",
-    "decadal1972",
-    "decadal1973",
-    "decadal1974",
-    "decadal1975",
-    "decadal1976",
-    "decadal1977",
-    "decadal1978",
-    "decadal1979",
-    "decadal1980",
-    "decadal1981",
-    "decadal1982",
-    "decadal1983",
-    "decadal1984",
-    "decadal1985",
-    "decadal1986",
-    "decadal1987",
-    "decadal1988",
-    "decadal1989",
-    "decadal1990",
-    "decadal1991",
-    "decadal1992",
-    "decadal1993",
-    "decadal1994",
-    "decadal1995",
-    "decadal1996",
-    "decadal1997",
-    "decadal1998",
-    "decadal1999",
-    "decadal2000",
-    "decadal2001",
-    "decadal2002",
-    "decadal2003",
-    "decadal2004",
-    "decadal2005",
-    "decadal2006",
-    "esmControl",
-    "esmFdbk1",
-    "esmFdbk2",
-    "esmFixClim1",
-    "esmFixClim2",
-    "esmHistorical",
-    "esmrcp85",
-    "historical",
-    "historicalGHG",
-    "historicalNat",
-    "midHolocene",
-    "noVolc1960",
-    "noVolc1975",
-    "noVolc1980",
-    "noVolc1985",
-    "noVolc1990",
-    "past1000",
-    "piControl",
-    "rcp26",
-    "rcp45",
-    "rcp60",
-    "rcp85",
-    "sstClim",
-    "sstClim4xCO2",
-    "sstClimAerosol",
-    "sstClimSulfate",
-    "volcIn2010",
-    "historicalMisc",
-    "decadal2007",
-    "decadal2008",
-    "decadal2009",
-    "decadal2010",
-    "decadal2011",
-    "historicalExt",
-    "aqua4K",
-    "aqua4xCO2",
-    "aquaControl",
-    "decadal1959",
-    "lgm",
-    "noVolc1965",
-    "noVolc1970",
-    "noVolc1995",
-    "noVolc2000",
-    "noVolc2005",
-    "ACCESS1-0",
-    "ACCESS1-3",
-    "FGOALS-gl",
-    "FGOALS-s2",
-    "MIROC-ESM",
-    "MIROC-ESM-CHEM",
-    "MIROC4h",
-    "MIROC5",
-    "sst2030",
-    "decadal2012",
-    "sst2090",
-    "sst2090rcp45",
-]
+known_projects = project_base_dirs.keys()
 
-frequency = ["3hr", "6hr", "day", "fx", "mon", "monClim", "subhr", "yr"]
+facet_rules = {
+    'cmip5': 'activity product institute model experiment frequency realm mip_table ensemble_member version variable'.split(),
+    'cmip6': 'mip_era activity_id institution_id source_id experiment_id member_id table_id variable_id grid_label version'.split(),
+    'cordex': 'NOT DEFINED YET'
+}
 
-realm = ["aerosol", "atmos", "land", "landIce", "ocean", "ocnBgchem", "seaIce"]
+"""
+[DEFAULT]
+use_esdoc = true
+dataset_glob_path = */*/*
+collection_glob_path = */*
+unknown_party_ob_id = 9
+global_geog_bbox_ob_id = 529
+uses_latest_symlinks = true
+# Override 'project_id_in_paths' if project ID (or section header) is
+# different from the directory name found in file paths.
+institute_facet = institute
+project_id_in_paths =
+constraints_ob_id =
 
-table_id = [
-    "3hr",
-    "6hrLev",
-    "6hrPlev",
-    "Amon",
-    "LImon",
-    "Lmon",
-    "OImon",
-    "Oclim",
-    "Omon",
-    "aero",
-    "cf3hr",
-    "cfDay",
-    "cfMon",
-    "cfOff",
-    "cfSites",
-    "day",
-    "fx",
-]
+[cmip5]
+activity = cmip5
+base_path = /badc/cmip5/data
+m2m_cache_dir = /badc/cmip5/metadata/mip-to-moles/scans
+base_dirs = /badc/cmip5/data/cmip5/output1 /badc/cmip5/data/cmip5/output2
+dataset_level_glob = /badc/cmip5/data/cmip5/output*/*/*/*
+above_version_dir_glob_template = {}/*/*/*/r*
+version_dir_glob_templates = {}/v[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9] {}/v[0-9]
+nc_file_glob_template = {}/*/*.nc
+eg_file = /badc/cmip5/data/cmip5/output1/MOHC/HadGEM2-ES/rcp45/mon/atmos/Amon/r1i1p1/v20111128/tasmax/tasmax_Amon_HadGEM2-ES_rcp45_r1i1p1_200512-203011.nc
+facets = activity product institute model experiment frequency realm mip_table ensemble_member version variable
+ceda_officers = Charlotte Pascoe
+dq_conformance_result_ob_id = 3045
 
-ensembles = [
-    "r10i1p1",
-    "r11i1p1",
-    "r12i1p1",
-    "r1i1p1",
-    "r1i1p121",
-    "r1i1p122",
-    "r1i1p124",
-    "r1i1p125",
-    "r1i1p126",
-    "r1i1p127",
-    "r1i1p128",
-    "r1i1p2",
-    "r1i1p3",
-    "r1i2p1",
-    "r1i2p2",
-    "r2i1p1",
-    "r2i1p2",
-    "r2i1p3",
-    "r3i1p1",
-    "r3i1p2",
-    "r3i1p3",
-    "r4i1p1",
-    "r4i1p2",
-    "r4i1p3",
-    "r5i1p1",
-    "r5i1p2",
-    "r5i1p3",
-    "r6i1p1",
-    "r6i1p2",
-    "r6i1p3",
-    "r7i1p1",
-    "r8i1p1",
-    "r9i1p1",
-]
+[cmip6]
+project_id_in_paths = CMIP6
+activity = cmip6
+m2m_cache_dir = /badc/cmip6/metadata/mip-to-moles/scans
+institute_facet = institution_id
+base_path = /badc/cmip6/data/
+#/group_workspaces/jasmin4/esgf_fedcheck/cache/data
+base_dirs = /badc/cmip6/data/CMIP6/
+#/group_workspaces/jasmin4/esgf_fedcheck/cache/data/CMIP6
+dataset_level_glob = /badc/cmip6/data/CMIP6/*/*/*/*
+#/group_workspaces/jasmin4/esgf_fedcheck/cache/data/CMIP6/*/*/*/*
+above_version_dir_glob_template = {}/*/*/*/*
+version_dir_glob_templates = {}/v[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]
+nc_file_glob_template = {}/*.nc
+eg_file = /badc/cmip6/data/CMIP6/HighResMIP/MOHC/HadGEM3-GC31-HH/hist-1950/r1i1p1f1/Amon/tas/gn/v20171213/tas_Amon_HadGEM3-GC31-HH_hist-1950_r1i1p1f1_gn_201001-201012.nc
+facets = mip_era activity_id institution_id source_id experiment_id member_id table_id variable_id grid_label version
+example_values = mip_era:CMIP6 activity_id:HighResMIP institution_id:MOHC source_id:HadGEM3-GC31-HH experiment_id:hist-1950 member_id:r1i1p1f1 table_id:Amon variable_id:tas grid_label:gn version:v20180418
+use_esdoc = false
+ceda_officers = Ruth Petrie
+dq_conformance_result_ob_id = 1
+#3334
+constraints_ob_id = 1
+#2310
 
-variables = [
-    "baresoilFrac",
-    "burntArea",
-    "c3PftFrac",
-    "c4PftFrac",
-    "cCwd",
-    "cLeaf",
-    "cLitter",
-    "cLitterAbove",
-    "cLitterBelow",
-    "cMisc",
-    "cProduct",
-    "cRoot",
-    "cSoil",
-    "cSoilFast",
-    "cSoilMedium",
-    "cSoilSlow",
-    "cVeg",
-    "cWood",
-    "cropFrac",
-    "evspsblsoi",
-    "evspsblveg",
-    "fFire",
-    "fGrazing",
-    "fHarvest",
-    "fLitterSoil",
-    "fLuc",
-    "fVegLitter",
-    "fVegSoil",
-    "gpp",
-    "grassFrac",
-    "lai",
-    "landCoverFrac",
-    "mrfso",
-    "mrlsl",
-    "mrro",
-    "mrros",
-    "mrso",
-    "mrsos",
-    "nbp",
-    "nep",
-    "npp",
-    "nppLeaf",
-    "nppRoot",
-    "nppWood",
-    "pastureFrac",
-    "prveg",
-    "rGrowth",
-    "rMaint",
-    "ra",
-    "residualFrac",
-    "rh",
-    "shrubFrac",
-    "tran",
-    "treeFrac",
-    "treeFracPrimDec",
-    "treeFracPrimEver",
-    "treeFracSecDec",
-    "treeFracSecEver",
-    "tsl",
-]
+
+"""

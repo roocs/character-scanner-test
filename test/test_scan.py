@@ -54,7 +54,7 @@ def test_extract_characteristics_no_error(tmpdir):
     ds = xr.open_mfdataset(nc_files)
     extract_error_path = tmpdir.mkdir("test_extract_error")
 
-    characteristics = scan.extract_characteristic(ds, extract_error_path, var_id)
+    characteristics = scan.extract_character(ds, extract_error_path, var_id)
 
     assert len(characteristics) == 26
 
@@ -66,7 +66,7 @@ def test_extract_characteristics_with_error(tmpdir, create_netcdf_file):
     ds = xr.open_dataset(create_netcdf_file)
     extract_error_path = tmpdir.mkdir("test_extract_error")
 
-    characteristics = scan.extract_characteristic(ds, extract_error_path, var_id)
+    characteristics = scan.extract_character(ds, extract_error_path, var_id)
 
     assert characteristics == False
 
@@ -82,7 +82,7 @@ def test_output_to_JSON(tmpdir, create_netcdf_file):
     output_error_path = tmpdir.mkdir("test_output_error")
     json_file_name = "json_test.json"
 
-    JSON = scan.output_to_JSON(
+    JSON = scan.to_json(
         characteristics, output_path, json_file_name, output_error_path, var_id
     )
 
@@ -96,7 +96,7 @@ def test_already_run_output():
         os.unlink(fpath)
     cmd = "python scan.py -m MOHC/HadGEM2-ES -exp historical -e r1i1p1 -v rh"
     subprocess.call(cmd, shell=True)
-    scanner = scan.scan("MOHC/HadGEM2-ES", "historical", "r1i1p1", "rh")
+    scanner = scan.scan_dataset("MOHC/HadGEM2-ES", "historical", "r1i1p1", "rh")
     assert scanner is None
 
     cmd_delete = (
@@ -109,7 +109,7 @@ def test_already_run_output():
 
 def test_scan_no_files():
     # no files for this file path
-    scanner = scan.scan("MOHC/HadGEM2-ES", "historical", "r1i1p1", "cMisc")
+    scanner = scan.scan_dataset("MOHC/HadGEM2-ES", "historical", "r1i1p1", "cMisc")
     assert scanner == False
 
 

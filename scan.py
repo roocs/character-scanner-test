@@ -2,20 +2,20 @@
 
 """
 Takes arguemnts from the command line and scans each dataset to extract the characteristics.
-Outputs the characteristics to a JSON file.
+Outputs the characteristics to JSON files.
+
 Can be re-run if errors are fixed and will only run those which failed.
 """
 
 import json
-import glob
+import collections
 import os
-import xarray as xr
-import numpy as np
 import argparse
-from pathlib import Path
+
+import xarray as xr
 
 import SETTINGS
-from lib import options
+from .lib import options
 
 
 def arg_parse():
@@ -25,87 +25,59 @@ def arg_parse():
     :return: Namespace object built from attributes parsed from command line.
     """
     parser = argparse.ArgumentParser()
-
-    model_choices = options.models
-    experiment_choices = options.experiments
-    ensemble_choices = options.ensembles
-    variable_choices = options.variables
+    project_options = options.known_projects
 
     parser.add_argument(
-        "-m",
-        "--model",
+        "-p",
+        "--project",
         nargs=1,
         type=str,
-        choices=model_choices,
+        choices=project_options,
         required=True,
-        help=f"Institue and model combination to scan, "
-        f"must be one of: {model_choices}",
-        metavar="",
+        help=f'Project ID, must be one of: {project_options}'
     )
+
     parser.add_argument(
-        "-exp",
-        "--experiment",
+        "-d",
+        "--dataset-ids",
         nargs=1,
         type=str,
-        default=experiment_choices,
-        required=True,
-        help=f"Experiment to scan, " f"must be one of: {experiment_choices}",
-        metavar="",
+        default=None,
+        required=False,
+        help='List of comma-separated dataset identifiers'
     )
+
+    parser.add_argument(
+        "-f",
+        "--facets",
+        nargs=1,
+        type=str,
+        default=None,
+        required=False,
+        help='Set of facets to use, formatted as: x=hello,y=2,z=bye'
+    )
+
     parser.add_argument(
         "-e",
-        "--ensemble",
+        "--exclude",
         nargs=1,
         type=str,
-        choices=ensemble_choices,
-        required=True,
-        help=f"Ensemble to scan, must be one of: " f"{ensemble_choices}",
-        metavar="",
-    )
-    parser.add_argument(
-        "-v",
-        "--var_id",
-        choices=variable_choices,
-        default=variable_choices,
-        help=f"Variable to scan, can be one or many of: "
-        f"{variable_choices}. Default is all variables.",
-        metavar="",
-        nargs="*",
+        default=None,
+        required=False,
+        help=f'Regular expressions for excluding paths from being scanned'
     )
 
     return parser.parse_args()
 
 
-def find_files(model, experiment, ensemble, var_id):
-    """
-    Finds files that correspond to the given arguments.
-
-    :param model: (string) Model chosen as argument at command line.
-    :param experiment: (string) Experiment chosen as argument at command line.
-    :param ensemble: (string) Ensemble chosen as argument at command line.
-    :param var_id: (string) Variable chosen as argument at command line.
-    :return: The netCDF files that correspond to the arguments.
-    """
-
-    pattern = (
-        "/badc/cmip5/data/cmip5/output1/{model}/{experiment}/mon/land"
-        "/Lmon/{ensemble}/latest/{var_id}/*.nc"
-    )
-    glob_pattern = pattern.format(
-        model=model, experiment=experiment, ensemble=ensemble, var_id=var_id
-    )
-    nc_files = glob.glob(glob_pattern)
-    return nc_files
-
-
-def extract_characteristic(ds, extract_error_path, var_id):
+def extract_character(ds, var_id, extract_error_path):
     """
     Takes a dataset and extracts characteristics from it. If a characteristic
     can't be extracted it creates an error file.
 
     :param ds: (xarray.Dataset) The dataset to extract characteristics from.
-    :param extract_error_path: (string) The file path at which the error files are produced.
     :param var_id: (string) The variable chosen as an argument at the command line.
+    :param extract_error_path: (string) The file path at which the error files are produced.
     :return characteristics: (dict) The extracted characteristics. Returned as a dictionary.
     """
 
@@ -198,14 +170,12 @@ def extract_characteristic(ds, extract_error_path, var_id):
         return False
 
 
-def output_to_JSON(
-    characteristics, output_path, json_file_name, output_error_path, var_id
-):
+def to_json(character, output_path, json_file_name, output_error_path, var_id):
     """
     Outputs the extracted characteristics to a JSON file.
     If the characteristics can't be output an error file is produced.
 
-    :param characteristics: (dict) The extracted characteristics.
+    :param character: (dict) The extracted characteristics.
     :param output_path: (string) The file path at which the JSON file is produced.
     :param json_file_name: (string) The name of the JSON file to be produced.
     :param output_error_path: (string) The file path at which the error files are produced.
@@ -219,7 +189,7 @@ def output_to_JSON(
 
     try:
         # Output to JSON file
-        with open(os.path.join(output_path, f"{json_file_name}"), "w") as write_file:
+        with open(os.path.join(output_path, json_file_name), "w") as write_file:
             json.dump(characteristics, write_file, indent=4, sort_keys=True)
         return True
 
@@ -227,30 +197,56 @@ def output_to_JSON(
         if not os.path.exists(output_error_path):
             os.makedirs(output_error_path)
 
-        file = open(
-            os.path.join(output_error_path, f"{var_id}.log"), "w"
-        )  # creates empty file
-        file.write(f"Error outputting to file: {exc}")
+        with open(os.path.join(output_error_path, f"{var_id}.log"), "w") as error_file:
+            error_file.write(f"Error outputting to file: {exc}")
+
         print(exc)
         return False
 
 
-def loop_over_vars(args):
+def get_dataset_paths(args):
     """
-    Loops over each variable listed and calls scan.
+    Converts the input arguments into an Ordered Dictionary of {DSID: directory} items.
+
+    :param args: (namespace) Namespace object built from attributes parsed from command line
+    :return: An Ordered Dictionary of {dsid: directory}
+    """
+    project = args.project
+    ds_ids = args.ds_ids
+    paths = args.paths
+    facets = dict([_.split(',') for _ in args.facets])
+    exclude = args.exclude
+
+    base_dir = options.project_base_dirs(project)
+    ds_paths = collections.OrderedDict()
+
+    # If ds_ids is defined then ignore all other arguments and use this list
+    if ds_ids:
+
+        for dsid in ds_ids.split(','):
+            ds_path = os.path.join(base_dir, '/'.join(dsid.split('.')))
+            ds_paths[dsid] = ds_path
+    else:
+        raise NotImplementedError('Code currently breaks if not using "ds_ids" argument.')
+
+    return ds_paths
+
+
+def scan_datasets(args):
+    """
+    Loops over ESGF data sets and scans them for character.
 
     :param args: (namespace) Namespace object built from attributes parsed from command line
     """
-    # keep track of failures
+    # Keep track of failures
     count = 0
     failure_count = 0
 
-    # turn arguments into string
-    model = " ".join(args.model)
-    ensemble = " ".join(args.ensemble)
-    experiment = " ".join(args.experiment)
-    for var_id in args.var_id:
-        scanner = scan(model, experiment, ensemble, var_id)
+    # Filter arguments to get a set of file paths to DSIDs
+    ds_paths = _get_dataset_paths(args)
+
+    for in args.var_id:
+        scanner = scan_dataset(model, experiment, ensemble, var_id)
         count += 1
         if scanner is False:
             failure_count += 1
@@ -265,18 +261,31 @@ def loop_over_vars(args):
     )
 
 
-def scan(model, experiment, ensemble, var_id):
+def scan_dataset(project, ds_ids=None, paths=None, facets=None, exclude=None):
     """
-    Scans the dataset and produces a JSON file of the characteristics if no errors.
+    Scans a set of files found for a given `project` based on a combination of:
+     - ds_ids: sequence of dataset identifiers (DSIDs)
+     - paths: sequence of file paths to scan for NetCDF files under
+     - facets: dictionary of facet values to limit the search
+     - exclude: list of regular expressions to exclude in file paths
+
+    The scanned datasets are characterised and the output is written to a JSON file
+    if no errors occurred.
+
     Keeps track of whether the job was successful or not.
     Produces error files if an error occurs, otherwise produces a success file.
 
-    :param model: (string) Model chosen as argument at command line.
-    :param experiment: (string) Experiment chosen as argument at command line.
-    :param ensemble: (string) Ensemble chosen as argument at command line.
-    :param var_id: (string) Variable chosen as argument at command line.
+    :param project: top-level project, e.g. "cmip5", "cmip6" or "cordex" (case-insensitive)
+    :param ds_ids: sequence of dataset identifiers (DSIDs), OR None.
+    :param paths: sequence of file paths to scan for NetCDF files under, OR None.
+    :param facets: dictionary of facet values to limit the search, OR None.
+    :param exclude: list of regular expressions to exclude in file paths, OR None.
+    :return: Dictionary of {"success": list of DSIDs that were successfully scanned,
+                            "failed": list of DSIDs that failed to scan}
     """
 
+    if project not in options.known_projects:
+        raise Exception(f'Project must be one of known projects: {options.known_projects}')
     # Generate output file path
     output_path = SETTINGS.JSON_OUTPUT_PATH.format(
         model=model,
@@ -321,63 +330,48 @@ def scan(model, experiment, ensemble, var_id):
         )
         return
 
-    # delete previous failure files
+    # delete previous failure files and log files
     no_files_file = f"{no_files_path}/{var_id}.log"
-    if os.path.exists(no_files_file):
-        os.unlink(no_files_file)
-
     extract_error_file = f"{extract_error_path}/{var_id}.log"
-    if os.path.exists(extract_error_file):
-        os.unlink(extract_error_file)
-
     output_error_file = f"{output_error_path}/{var_id}.log"
-    if os.path.exists(output_error_file):
-        os.unlink(output_error_file)
 
-    # delete previous log files
-    extract_error_file = f"{extract_error_path}/{var_id}.log"
-    if os.path.exists(extract_error_file):
-        os.unlink(extract_error_file)
+    for log_path in (no_files_file, extract_error_file, output_error_file):
+        if os.path.exists(log_path):
+            os.unlink(log_path)
 
     # get files
-    nc_files = find_files(model, experiment, ensemble, var_id)
+    nc_files = glob.glob(f'ds_id)
 
     if not nc_files:
 
+        # Log failure: no NC files
         if not os.path.exists(no_files_path):
             os.makedirs(no_files_path)
-        open(os.path.join(no_files_path, f"{var_id}.log"), "w")  # creates empty file
 
+        open(os.path.join(no_files_path, f"{var_id}.log"), "w")
         return False
 
-    # open files
+    # Open files with Xarray and get character
     ds = xr.open_mfdataset(nc_files)
+    character = extract_character(dsid, extract_error_path)
 
-    # create error file if can't open datatset
-    if not ds:
+    # Create error file if can't open dataset
+    if not ds or not character:
+
+        # Log failure: Could not get character from Xarray Dataset
         if not os.path.exists(open_error_path):
             os.makedirs(open_error_path)
 
-        open(os.path.join(open_error_path, f"{var_id}.log"), "w")  # creates empty file
+        open(os.path.join(open_error_path, f"{var_id}.log"), "w")
         return False
 
-    # extract characteristics
-    characteristics = extract_characteristic(ds, extract_error_path, var_id)
-
-    # create error file if can't extract characteristic
-    if not characteristics:
-        return False
-
-    # output to JSON file
-    # json file
+    # Output to JSON file
     json_file_name = (
         f"cmip5.output1.{model.replace('/', '.')}.{experiment}.mon.land."
         f"Lmon.{ensemble}.latest.{var_id}.json"
     )
 
-    output = output_to_JSON(
-        characteristics, output_path, json_file_name, output_error_path, var_id
-    )
+    output = to_json(character, output_path, json_file_name, output_error_path, var_id)
 
     # create error file if can't output file
     if not output:
@@ -391,11 +385,13 @@ def scan(model, experiment, ensemble, var_id):
 
 
 def main():
-    """Runs script if called on command line"""
-
+    """
+    Runs script if called on command line
+    """
     args = arg_parse()
-    loop_over_vars(args)
+    scan_datasets(args)
 
 
 if __name__ == "__main__":
+
     main()
