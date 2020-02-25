@@ -79,26 +79,25 @@ def _get_arg_parser():
     return parser
 
 
-#def _to_list(item):
-#    if not item: return item
-#    return item.split(',')
+def _to_list(item):
+    if not item: return item
+    return item[0].split(',')
 
 
 def _to_dict(item):
     if not item: return item
-    return dict([_.split('=') for _ in item])
+    return dict([_.split('=') for _ in item[0].split(',')])
 
 
 def parse_args():
     parser = _get_arg_parser()
     args = parser.parse_args()
-    print(args)
 
     project = args.project[0]
-    ds_ids = args.dataset_ids
-    paths = args.paths
+    ds_ids = _to_list(args.dataset_ids)
+    paths = _to_list(args.paths)
     facets = _to_dict(args.facets)
-    exclude = args.exclude
+    exclude = _to_list(args.exclude)
 
     return project, ds_ids, paths, facets, exclude
 
@@ -113,7 +112,11 @@ def extract_character(files, var_id):
     :return character: (dict) The extracted characteristics. Returned as a dictionary.
     """
     # Open the files
-    ds = xr.open_mfdataset(files)
+#    print(files)
+#    print(var_id)
+#    import pdb; pdb.set_trace()
+    ds = xr.open_mfdataset(files[:2])
+    print('[WARN] ONLY READING 2!')
 
     # Get values
     values = ds[var_id].values
@@ -153,13 +156,13 @@ def extract_character(files, var_id):
     time_long_name = ds.time.long_name
     time_standard_name = ds.time.standard_name
     shape = ds[var_id].shape
-    rank = len(ds.dims)
+    rank = len(shape)
     start_date = start_time.strftime("%Y-%m-%d %H:%M:%S")
     end_date = end_time.strftime("%Y-%m-%d %H:%M:%S")
     time_axis_length = len(ds.time)
     # fill_value =
 
-    characteristics = {
+    character = {
         "dims": dims,
         "project_id": project_id,
         "institute_id": institute_id,
@@ -193,38 +196,18 @@ def extract_character(files, var_id):
     return character
 
 
-def to_json(character, output_path, json_file_name, output_error_path, var_id):
+def to_json(character, output_path):
     """
     Outputs the extracted characteristics to a JSON file.
     If the characteristics can't be output an error file is produced.
 
     :param character: (dict) The extracted characteristics.
     :param output_path: (string) The file path at which the JSON file is produced.
-    :param json_file_name: (string) The name of the JSON file to be produced.
-    :param output_error_path: (string) The file path at which the error files are produced.
-    :param var_id: (string)The variable chosen as an argument at the command line.
     :return : None
     """
-
-    # make output directory
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
-
-    try:
-        # Output to JSON file
-        with open(os.path.join(output_path, json_file_name), "w") as write_file:
-            json.dump(characteristics, write_file, indent=4, sort_keys=True)
-        return True
-
-    except Exception as exc:
-        if not os.path.exists(output_error_path):
-            os.makedirs(output_error_path)
-
-        with open(os.path.join(output_error_path, f"{var_id}.log"), "w") as error_file:
-            error_file.write(f"Error outputting to file: {exc}")
-
-        print(exc)
-        return False
+    # Output to JSON file
+    with open(output_path, 'w') as writer:
+        json.dump(character, writer, indent=4, sort_keys=True)
 
 
 def get_dataset_paths(project, ds_ids=None, paths=None, facets=None, exclude=None):
@@ -246,12 +229,45 @@ def get_dataset_paths(project, ds_ids=None, paths=None, facets=None, exclude=Non
     if ds_ids:
 
         for dsid in ds_ids:
-            ds_path = os.path.join(base_dir, '/'.join(dsid.split('.')))
+            if not dsid: continue
+
+            ds_path = switch_ds(project, dsid) 
             ds_paths[dsid] = ds_path
+
+    # Else use facets if they exist
+    elif facets:
+
+        facet_order = options.facet_rules[project]
+        facets_as_path = '/'.join([facets.get(_, '*') for _ in facet_order])
+     
+        pattern = os.path.join(base_dir, facets_as_path)
+        print(f'[INFO] Finding dataset paths for pattern: {pattern}')
+        
+        for ds_path in glob.glob(pattern):
+ 
+            dsid = switch_ds(project, ds_path)
+            ds_paths[dsid] = ds_path
+
     else:
         raise NotImplementedError('Code currently breaks if not using "ds_ids" argument.')
 
     return ds_paths
+
+
+def switch_ds(project, ds):
+    """
+    Switches between ds_path and ds_id.
+
+    :param project: top-level project
+    :param ds: either dataset path or dataset ID (DSID)
+    :return: either dataset path or dataset ID (DSID) - switched from the input.
+    """
+    base_dir = options.project_base_dirs[project]
+
+    if ds.startswith('/'):
+        return '.'.join(ds.replace(base_dir, '').strip('/').split('/'))
+    else:
+        return os.path.join(base_dir, '/'.join(ds.split('.')))
 
 
 def scan_datasets(project, ds_ids=None, paths=None, facets=None, exclude=None):
@@ -362,6 +378,7 @@ def scan_dataset(project, ds_id, ds_path):
     if project not in options.known_projects:
         raise Exception(f'Project must be one of known projects: {options.known_projects}')
 
+    print(f'[INFO] Scanning dataset: {ds_id}')
     facets = analyse_facets(project, ds_id)
 
     # Generate output file paths
@@ -382,7 +399,7 @@ def scan_dataset(project, ds_id, ds_path):
     nc_files = glob.glob(f'{ds_path}/*.nc')
 
     if not nc_files:
-        # Log failure: no NC files
+        print(f'[ERROR] No data files found for: {ds_path}/*.nc')
         open(outputs['no_files_error'], 'w')
         return False
 
@@ -390,6 +407,7 @@ def scan_dataset(project, ds_id, ds_path):
     try:
         character = extract_character(nc_files, var_id=facets['variable'])
     except Exception as exc:
+        print(f'[ERROR] Could not load Xarray Dataset for: {ds_path}')
         # Create error file if can't open dataset
         open(outputs['extract_error'], 'w')
         return False
@@ -398,13 +416,14 @@ def scan_dataset(project, ds_id, ds_path):
     try:
         output = to_json(character, outputs['json'])
     except Exception as exc:
+        print(f'[ERROR] Could not write JSON output: {outputs["json"]}')
         # Create error file if can't output file
         open(outputs['write_error'], 'w')
         return False
 
     # Create success file
     open(outputs['success'], 'w')
-    print(f'[INFO] Wrote success file: {outputs["success"]}')
+    print(f'[INFO] Wrote JSON file: {outputs["json"]}')
 
 
 def main():
