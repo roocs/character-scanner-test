@@ -124,10 +124,10 @@ def test_scan_no_files():
 
 def test_varying_coords_example_fail(create_netcdf_file, create_netcdf_file_2):
     """ Tests what happens when opening files as mfdataset for which the coordinates vary """
-    ds = xr.open_mfdataset('test/data/*.nc', concat_dim='lat')
+    ds = xr.open_mfdataset('test/data/*.nc')
 
-    if not ds.temp.shape == (145, 192):
-        raise Exception(f'variable is not the correct shape: should be (145,192) but is {ds.temp.shape}')
+    if not ds.temp.shape == (1752, 145, 192):
+        raise Exception(f'variable is not the correct shape: should be (1752, 145,192) but is {ds.temp.shape}')
 
     # seems to keep one variable but joins the coordinate lists together
 
