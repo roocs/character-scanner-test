@@ -5,6 +5,7 @@ import sys
 import pytest
 import os
 
+import lib.character
 import scan
 
 
@@ -54,7 +55,7 @@ def test_extract_characteristics_no_error(tmpdir):
     ds = xr.open_mfdataset(nc_files)
     extract_error_path = tmpdir.mkdir("test_extract_error")
 
-    characteristics = scan.extract_character(ds, extract_error_path, var_id)
+    characteristics = lib.character.extract_character(ds, extract_error_path, var_id)
 
     assert len(characteristics) == 26
 
@@ -66,7 +67,7 @@ def test_extract_characteristics_with_error(tmpdir, create_netcdf_file):
     ds = xr.open_dataset(create_netcdf_file)
     extract_error_path = tmpdir.mkdir("test_extract_error")
 
-    characteristics = scan.extract_character(ds, extract_error_path, var_id)
+    characteristics = lib.character.extract_character(ds, extract_error_path, var_id)
 
     assert characteristics == False
 

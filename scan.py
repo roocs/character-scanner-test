@@ -13,10 +13,9 @@ import os
 import glob
 import argparse
 
-import xarray as xr
-
 import SETTINGS
 from lib import options
+from lib.character import extract_character
 
 
 def _get_arg_parser():
@@ -100,100 +99,6 @@ def parse_args():
     exclude = _to_list(args.exclude)
 
     return project, ds_ids, paths, facets, exclude
-
-
-def extract_character(files, var_id):
-    """
-    Open files as an Xarray MultiFile Dataset and extract character as a dictionary.
-    Takes a dataset and extracts characteristics from it.
-
-    :param files: List of data files.
-    :param var_id: (string) The variable chosen as an argument at the command line.
-    :return character: (dict) The extracted characteristics. Returned as a dictionary.
-    """
-    # Open the files
-#    print(files)
-#    print(var_id)
-#    import pdb; pdb.set_trace()
-    ds = xr.open_mfdataset(files[:2])
-    print('[WARN] ONLY READING 2!')
-
-    # Get values
-    values = ds[var_id].values
-    lat_values = ds.lat.values
-    lon_values = ds.lon.values
-    start_time = ds.time.values[0]
-    end_time = ds.time.values[-1]
-
-    # Get info about dataset
-    project_id = ds.project_id
-    institute_id = ds.institute_id
-    model_id = ds.model_id
-    experiment_id = ds.experiment_id
-    frequency = ds.frequency
-    modeling_realm = ds.modeling_realm
-
-    table_id = ds.table_id.split(" ")[1]
-    realisation = ds.realization
-    initialisation_method = ds.initialization_method
-    physics_version = ds.physics_version
-    ensemble = f"r{realisation}i{initialisation_method}p{physics_version}"
-
-    # extract characteristics
-    dims = dict(ds.dims)
-    calendar = ds.time.values[0].calendar
-    max_value = float(values.max())
-    min_value = float(values.min())
-    units = ds[var_id].units
-    standard_name = ds[var_id].standard_name
-    long_name = ds[var_id].long_name
-    # vars = ds.data_vars
-    coords = str(ds.coords._names)
-    lat_max = lat_values.max()
-    lat_min = lat_values.min()
-    lon_max = lon_values.max()
-    lon_min = lon_values.min()
-    time_long_name = ds.time.long_name
-    time_standard_name = ds.time.standard_name
-    shape = ds[var_id].shape
-    rank = len(shape)
-    start_date = start_time.strftime("%Y-%m-%d %H:%M:%S")
-    end_date = end_time.strftime("%Y-%m-%d %H:%M:%S")
-    time_axis_length = len(ds.time)
-    # fill_value =
-
-    character = {
-        "dims": dims,
-        "project_id": project_id,
-        "institute_id": institute_id,
-        "model_id": model_id,
-        "experiment_id": experiment_id,
-        "ensemble": ensemble,
-        "table_id": table_id,
-        "frequency": frequency,
-        "modeling_realm": modeling_realm,
-        "variable": var_id,
-        "calendar": calendar,
-        "max_value": max_value,
-        "min_value": min_value,
-        "units": units,
-        "standard_name": standard_name,
-        "long_name": long_name,
-        "coords": coords,
-        "lat_max": lat_max,
-        "lat_min": lat_min,
-        "lon_max": lon_max,
-        "lon_min": lon_min,
-        "time_long_name": time_long_name,
-        "time_standard_name": time_standard_name,
-        "shape": shape,
-        "rank": rank,
-        "start_date": start_date,
-        "end_date": end_date,
-        "time_axis_length": time_axis_length,
-    }
-
-    return character
 
 
 def to_json(character, output_path):
