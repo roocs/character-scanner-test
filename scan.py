@@ -233,6 +233,14 @@ def _get_output_paths(project, ds_id):
     :return: dictionary of output paths with keys:
              'success', 'json', 'no_files_error', 'extract_error', 'write_error', 'batch'
     """
+    # Define a "grouped" ds_id that splits facets across directories and then groups
+    # the final set into a file path, based on SETTINGS.DIR_GROUPING_LEVEL value
+    gl = SETTINGS.DIR_GROUPING_LEVEL
+    parts = ds_id.split('.')
+    grouped_ds_id = '/'.join(parts[:-gl]) + '.'.join(parts[-gl:])
+    print(ds_id)
+    print(grouped_ds_id)
+
     paths = {
         'success': SETTINGS.SUCCESS_PATH.format(**vars()),
         'json': SETTINGS.JSON_OUTPUT_PATH.format(**vars()),
