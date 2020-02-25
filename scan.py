@@ -309,6 +309,8 @@ def scan_dataset(project, ds_id, ds_path):
         return False
 
     # Open files with Xarray and get character
+    expected_facets = options.facet_rules[project]
+    extract_character(nc_files, var_id=facets['variable'], expected_attrs=expected_facets)
     try:
         character = extract_character(nc_files, var_id=facets['variable'])
     except Exception as exc:

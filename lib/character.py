@@ -48,8 +48,11 @@ def get_coords(da):
     Returns a dictionary of coordinate info.
     """
     coords = {}
+    print(f'[DEBUG] Found coords: {str(da.coords.keys())}')
+    print(f'[WARN] NOT CAPTURING scalar COORDS BOUND BY coorindates attr yet!!!')
 
-    for coord in da.coords.items():
+    for coord_id in da.coords.dims:
+        coord = da.coords[coord_id]
 
         coord_type = get_coord_type(coord)
         name = coord_type or coord.name
@@ -58,15 +61,15 @@ def get_coords(da):
         mn, mx = data.min(), data.max()
 
         if coord_type == 'time':
-            mn, mx = [_.strftime('%Y-%m-%dT%H:%M:%S') for _ in mn, mx]
+            mn, mx = [_.strftime('%Y-%m-%dT%H:%M:%S') for _ in (mn, mx)]
         else:
-            mn, mx = [float(_) for _ in mn, mx]
+            mn, mx = [float(_) for _ in (mn, mx)]
 
         coords[name] = {
             'id': name,
             'min': mn,
             'max': mx,
-            'length': len(coord)
+            'length': len(data)
         }
 
         if coord_type == 'time':
@@ -136,3 +139,6 @@ class CharacterExtractor(object):
         print('[WARN] What about _FillValue ???')
 
 
+def extract_character(files, var_id, expected_attrs=None):
+    ce = CharacterExtractor(files, var_id, expected_attrs=expected_attrs)
+    return ce.character
