@@ -126,20 +126,13 @@ class CharacterExtractor(object):
         # Get content by variable
         da = ds[self._var_id]
 
-        character = {
+        self.character = {
             "variable": get_variable_metadata(da),
             "coordinates": get_coords(da),
             "global_attrs": get_global_attrs(ds, self._expected_attrs),
             "data": get_data_info(da)
         }
 
-
-        # Get coordinates
-        coords = get_coords(da)
-
-        # Get global attrs
-        globals = get_global_attrs(ds, self._expected_attrs)
-
         print('[WARN] What about _FillValue ???')
-        return character
+
 
