@@ -13,8 +13,7 @@ import os
 import glob
 import argparse
 
-#import xarray as xr
-import string as xr
+import xarray as xr
 
 import SETTINGS
 from lib import options
