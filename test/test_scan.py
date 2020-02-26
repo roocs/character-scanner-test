@@ -125,10 +125,10 @@ def test_scan_no_files():
 
 def test_varying_coords_example_fail(create_netcdf_file, create_netcdf_file_2):
     """ Tests what happens when opening files as mfdataset for which the coordinates vary """
-    ds = xr.open_mfdataset('test/data/*.nc', concat_dim='lat')
+    ds = xr.open_mfdataset('test/data/*.nc')
 
-    if not ds.temp.shape == (145, 192):
-        raise Exception(f'variable is not the correct shape: should be (145,192) but is {ds.temp.shape}')
+    if not ds.temp.shape == (1752, 145, 192):
+        raise Exception(f'variable is not the correct shape: should be (1752, 145,192) but is {ds.temp.shape}')
 
     # seems to keep one variable but joins the coordinate lists together
 
@@ -141,3 +141,79 @@ def test_varying_coords_example_succeed():
         raise Exception(f'variable is not the correct shape: should be (1752,145,192) but is {ds.rh.shape}')
 
 
+@pytest.mark.skip(reason="Exception was: Cannot compare type 'Timestamp' with type 'DatetimeProlepticGregorian'")
+def test_time_axis_types_issue():
+    nc_files = [
+        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_200601-210012.nc',
+        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_210101-230012.nc']
+
+    ds = xr.open_mfdataset(nc_files)
+    da = ds['zostoga']
+    tm = da.coords['time']
+
+    tm.max()
+
+
+    # opening only second dataset- get warning: SerializationWarning: Unable to decode time axis into full
+    # numpy.datetime64 objects, continuing using dummy cftime.datetime objects instead, reason: dates out of range
+
+    # From xarray webiste:
+    # One unfortunate limitation of using datetime64[ns] is that it limits the native representation of dates to
+    # those that fall between the years 1678 and 2262. When a netCDF file contains dates outside of these
+    # bounds, dates will be returned as arrays of cftime.datetime objects and a CFTimeIndex will be used
+    # for indexing. CFTimeIndex enables a subset of the indexing functionality of a pandas.DatetimeIndex
+    # and is only fully compatible with the standalone version of cftime (not the version packaged with
+    # earlier versions netCDF4).
+
+
+def test_time_axis_types_issue_fix():
+    # fix for Exception was: Cannot compare type 'Timestamp' with type 'DatetimeProlepticGregorian'
+    # must be using xarray version 0.15
+
+    nc_files = [
+        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_200601-210012.nc',
+        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_210101-230012.nc']
+
+    ds = xr.open_mfdataset(nc_files, use_cftime=True, combine='by_coords')
+    da = ds['zostoga']
+    tm = da.coords['time']
+
+    tm.max()
+
+
+def test_time_max_as_strftime():
+    nc_files = [
+        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_200601-210012.nc',
+        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_210101-230012.nc']
+
+    ds = xr.open_mfdataset(nc_files, use_cftime=True, combine='by_coords')
+    da = ds['zostoga']
+    tm = da.coords['time']
+    data = tm.values
+    mx = data.max()
+    mx = mx.strftime('%Y-%m-%dT%H:%M:%S')
+    return mx
+
+
+def test_time_max_as_strftime_to_json():
+    nc_files = [
+        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_200601-210012.nc',
+        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_210101-230012.nc']
+
+    ds = xr.open_mfdataset(nc_files, use_cftime=True, combine='by_coords')
+    da = ds['zostoga']
+    tm = da.coords['time']
+    data = tm.values
+    mx = data.max()
+    mx = mx.strftime('%Y-%m-%dT%H:%M:%S')
+
+    with open('test/data/max.json', "w") as write_file:
+        json.dump({"time_max": mx}, write_file)
