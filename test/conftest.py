@@ -21,14 +21,14 @@ def create_netcdf_file():
         lons = np.arange(0, 360, 1.875)
         lat[:] = lats
         lon[:] = lons
-        temp = test_file.createVariable("temp", "f4", ("lat", "lon",))
-        temp.units = "K"
+        test_file.createDimension("time", 876)
         times = test_file.createVariable("time", "f8", ("time",))
         times.units = "hours since 0001-01-01 00:00:00.0"
         times.calendar = "gregorian"
-        dates = [datetime(2001, 3, 1) + n * timedelta(hours=12) for n in range(temp.shape[0])]
+        dates = [datetime(2001, 3, 1) + n * timedelta(hours=12) for n in range(876)]
         times[:] = date2num(dates, units=times.units, calendar=times.calendar)
-
+        temp = test_file.createVariable("temp", "f4", ("time", "lat", "lon",))
+        temp.units = "K"
     return "test/data/test_file.nc"
 
 
@@ -48,8 +48,15 @@ def create_netcdf_file_2():
         lons = (np.arange(0, 360, 1.875) + 1)
         lat[:] = lats
         lon[:] = lons
-        temp = test_file_2.createVariable("temp", "f4", ("lat", "lon",))
+        test_file_2.createDimension("time", 876)
+        times = test_file_2.createVariable("time", "f8", ("time",))
+        times.units = "hours since 0001-01-01 00:00:00.0"
+        times.calendar = "gregorian"
+        dates = [datetime(2003, 7, 26) + n * timedelta(hours=12) for n in range(876)]
+        times[:] = date2num(dates, units=times.units, calendar=times.calendar)
+        temp = test_file_2.createVariable("temp", "f4", ("time", "lat", "lon",))
         temp.units = "K"
+
 
     return "test/data/test_file_2.nc"
 
