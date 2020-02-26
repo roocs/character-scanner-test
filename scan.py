@@ -218,9 +218,8 @@ def scan_datasets(project, ds_ids=None, paths=None, facets=None, exclude=None):
 
     percentage_failed = (failure_count / count) * 100
 
-    print(
-        f"Completed job. Failure count = {failure_count}. Percentage failed = {percentage_failed}%"
-    )
+    print(f'Completed job. Failure count = {failure_count}. Percentage failed'
+          f' = {percentage_failed}%')
 
 
 def _get_output_paths(project, ds_id):
@@ -237,9 +236,7 @@ def _get_output_paths(project, ds_id):
     # the final set into a file path, based on SETTINGS.DIR_GROUPING_LEVEL value
     gl = SETTINGS.DIR_GROUPING_LEVEL
     parts = ds_id.split('.')
-    grouped_ds_id = '/'.join(parts[:-gl]) + '.'.join(parts[-gl:])
-    print(ds_id)
-    print(grouped_ds_id)
+    grouped_ds_id = '/'.join(parts[:-gl]) + '/' + '.'.join(parts[-gl:])
 
     paths = {
         'success': SETTINGS.SUCCESS_PATH.format(**vars()),
@@ -291,7 +288,7 @@ def scan_dataset(project, ds_id, ds_path):
     if project not in options.known_projects:
         raise Exception(f'Project must be one of known projects: {options.known_projects}')
 
-    print(f'[INFO] Scanning dataset: {ds_id}')
+    print(f'[INFO] Scanning dataset: {ds_id}\n\t\t{ds_path}')
     facets = analyse_facets(project, ds_id)
 
     # Generate output file paths
@@ -318,13 +315,18 @@ def scan_dataset(project, ds_id, ds_path):
 
     # Open files with Xarray and get character
     expected_facets = options.facet_rules[project]
-    extract_character(nc_files, var_id=facets['variable'], expected_attrs=expected_facets)
+
     try:
-        character = extract_character(nc_files, var_id=facets['variable'])
+        character = extract_character(nc_files, var_id=facets['variable'], expected_attrs=expected_facets)
     except Exception as exc:
         print(f'[ERROR] Could not load Xarray Dataset for: {ds_path}')
+        print(f'[ERROR] Files: {nc_files}')
+        print(f'[ERROR] Exception was: {exc}')
+
         # Create error file if can't open dataset
-        open(outputs['extract_error'], 'w')
+        with open(outputs['extract_error'], 'w') as writer:
+            writer.write(str(exc))
+
         return False
 
     # Output to JSON file

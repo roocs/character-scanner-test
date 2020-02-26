@@ -1,4 +1,5 @@
 import xarray as xr
+import numpy as np
 
 
 # NOTE THESE ARE COMMON WITH clisops - need to merge!!!
@@ -61,7 +62,10 @@ def get_coords(da):
         mn, mx = data.min(), data.max()
 
         if coord_type == 'time':
-            mn, mx = [_.strftime('%Y-%m-%dT%H:%M:%S') for _ in (mn, mx)]
+            if type(mn) == np.datetime64:
+                mn, mx = [str(_).split('.')[0] for _ in (mn, mx)]
+            else:
+                mn, mx = [_.strftime('%Y-%m-%dT%H:%M:%S') for _ in (mn, mx)]
         else:
             mn, mx = [float(_) for _ in (mn, mx)]
 
@@ -73,15 +77,34 @@ def get_coords(da):
         }
 
         if coord_type == 'time':
-            coords[name]['calendar'] = data[0].calendar
+            if type(data[0]) == np.datetime64:
+                coords[name]['calendar'] = 'standard'
+            else:
+                coords[name]['calendar'] = data[0].calendar
 
         coords[name].update(coord.attrs)
 
     return coords
 
 
+def _copy_dict_for_json(dct):
+
+    d = {}
+
+    for key, value in dct.items():
+        
+        if type(value) == np.float64:
+            value = float(value)
+        elif type(value) == np.int32:
+            value = int(value)
+
+        d[key] = value
+
+    return d
+
+
 def get_variable_metadata(da):
-    d = dict(da.attrs)
+    d = _copy_dict_for_json(da.attrs)
     d['var_id'] = da.name
     return d
 
@@ -90,16 +113,17 @@ def get_global_attrs(ds, expected_attrs=None):
     if expected_attrs:
         print('[WARN] Not testing expected attrs yet')
 
-    return dict(ds.attrs)
+    d = _copy_dict_for_json(ds.attrs)
+    return d
 
 
 def get_data_info(da):
     data = da.values
 
     return {
-        'min': data.min(),
-        'max': data.max(),
-        'shape': da.shape,
+        'min': float(data.min()),
+        'max': float(data.max()),
+        'shape': list(da.shape),
         'rank': len(da.shape),
         'coord_names': [_ for _ in da.coords.keys()]
     }
@@ -121,9 +145,7 @@ class CharacterExtractor(object):
         self._extract()
 
     def _extract(self):
-        ds = xr.open_mfdataset(self._files[:2])
-        print('[WARN] ONLY READING 2 FILES AT PRESENT!!!!')
-
+        ds = xr.open_mfdataset(self._files)
         print('[WARN] NEED TO CHECK NUMBER OF VARS/DOMAINS RETURNED HERE')
         print('[WARN] DOES NOT CHECK YET WHETHER WE MIGHT GET 2 DOMAINS/VARIABLES BACK FROM MULTI-FILE OPEN')
         # Get content by variable

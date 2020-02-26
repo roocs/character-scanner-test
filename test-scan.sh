@@ -1,7 +1,8 @@
 #!/bin/bash
 
-CMIP5_ID1='cmip5.output1.MOHC.HadGEM2-ES.rcp85.mon.atmos.Amon.r1i1p1.latest.tas'
+python scan.py -d cmip5.output1.MRI.MRI-CGCM3.rcp45.mon.ocean.Omon.r1i1p1.latest.zostoga cmip5
 
+CMIP5_ID1='cmip5.output1.MOHC.HadGEM2-ES.rcp85.mon.atmos.Amon.r1i1p1.latest.tas'
 python scan.py -d $CMIP5_ID1 cmip5
 
 #facets="activity product institute model experiment frequency realm mip_table ensemble_member version variable"
