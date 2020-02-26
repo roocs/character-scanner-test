@@ -57,7 +57,7 @@ def test_extract_characteristics_no_error(tmpdir):
 
     characteristics = lib.character.extract_character(ds, extract_error_path, var_id)
 
-    assert len(characteristics) == 26
+    assert len(characteristics) == 28
 
 
 def test_extract_characteristics_with_error(tmpdir, create_netcdf_file):
@@ -121,3 +121,23 @@ def test_scan_no_files():
 # def test_scan_output_error(): # need example of a file that has a characteristic that can't be dumped to json file
 #
 # def test_scan_open_error(): # need example of a file set that can't be opened using mfdataset
+
+
+def test_varying_coords_example_fail(create_netcdf_file, create_netcdf_file_2):
+    """ Tests what happens when opening files as mfdataset for which the coordinates vary """
+    ds = xr.open_mfdataset('test/data/*.nc', concat_dim='lat')
+
+    if not ds.temp.shape == (145, 192):
+        raise Exception(f'variable is not the correct shape: should be (145,192) but is {ds.temp.shape}')
+
+    # seems to keep one variable but joins the coordinate lists together
+
+
+def test_varying_coords_example_succeed():
+    """ Tests what happens when opening files as mfdataset for which the coordinates vary """
+    ds = xr.open_mfdataset('/badc/cmip5/data/cmip5/output1/MOHC/HadGEM2-ES/historical/mon/land/Lmon/r1i1p1/latest/rh/*.nc')
+
+    if not ds.rh.shape == (1752, 145, 192):
+        raise Exception(f'variable is not the correct shape: should be (1752,145,192) but is {ds.rh.shape}')
+
+
