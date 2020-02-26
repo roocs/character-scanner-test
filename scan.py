@@ -212,14 +212,12 @@ def scan_datasets(project, ds_ids=None, paths=None, facets=None, exclude=None):
         count += 1
         if scanner is False:
             failure_count += 1
-            continue
-        else:
-            continue
 
-    percentage_failed = (failure_count / count) * 100
+    percentage_failed = (failure_count / float(count)) * 100
 
-    print(f'Completed job. Failure count = {failure_count}. Percentage failed'
-          f' = {percentage_failed}%')
+    print(f'[INFO] COMPLETED. Total count: {count}'
+          f', Failure count = {failure_count}. Percentage failed'
+          f' = {percentage_failed:.2f}%')
 
 
 def _get_output_paths(project, ds_id):
@@ -296,7 +294,7 @@ def scan_dataset(project, ds_id, ds_path):
 
     if os.path.exists(outputs['success']):
         print(f'[INFO] Already ran for: {ds_id}')
-        return
+        return True
 
     # Delete previous failure files and log files
     for file_key in ('no_files_error', 'extract_error', 'write_error'):
