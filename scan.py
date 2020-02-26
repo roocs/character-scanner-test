@@ -14,7 +14,7 @@ import glob
 import argparse
 
 import SETTINGS
-from lib import options
+from lib import options, utils
 from lib.character import extract_character
 
 
@@ -136,7 +136,7 @@ def get_dataset_paths(project, ds_ids=None, paths=None, facets=None, exclude=Non
         for dsid in ds_ids:
             if not dsid: continue
 
-            ds_path = switch_ds(project, dsid) 
+            ds_path = utils.switch_ds(project, dsid) 
             ds_paths[dsid] = ds_path
 
     # Else use facets if they exist
@@ -150,29 +150,13 @@ def get_dataset_paths(project, ds_ids=None, paths=None, facets=None, exclude=Non
         
         for ds_path in glob.glob(pattern):
  
-            dsid = switch_ds(project, ds_path)
+            dsid = utils.switch_ds(project, ds_path)
             ds_paths[dsid] = ds_path
 
     else:
         raise NotImplementedError('Code currently breaks if not using "ds_ids" argument.')
 
     return ds_paths
-
-
-def switch_ds(project, ds):
-    """
-    Switches between ds_path and ds_id.
-
-    :param project: top-level project
-    :param ds: either dataset path or dataset ID (DSID)
-    :return: either dataset path or dataset ID (DSID) - switched from the input.
-    """
-    base_dir = options.project_base_dirs[project]
-
-    if ds.startswith('/'):
-        return '.'.join(ds.replace(base_dir, '').strip('/').split('/'))
-    else:
-        return os.path.join(base_dir, '/'.join(ds.split('.')))
 
 
 def scan_datasets(project, ds_ids=None, paths=None, facets=None, exclude=None):
@@ -230,11 +214,7 @@ def _get_output_paths(project, ds_id):
     :return: dictionary of output paths with keys:
              'success', 'json', 'no_files_error', 'extract_error', 'write_error', 'batch'
     """
-    # Define a "grouped" ds_id that splits facets across directories and then groups
-    # the final set into a file path, based on SETTINGS.DIR_GROUPING_LEVEL value
-    gl = SETTINGS.DIR_GROUPING_LEVEL
-    parts = ds_id.split('.')
-    grouped_ds_id = '/'.join(parts[:-gl]) + '/' + '.'.join(parts[-gl:])
+    grouped_ds_id = utils.get_grouped_ds_id(ds_id)
 
     paths = {
         'success': SETTINGS.SUCCESS_PATH.format(**vars()),

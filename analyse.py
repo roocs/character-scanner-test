@@ -3,7 +3,7 @@ import collections
 import json
 
 import SETTINGS
-from lib import options
+from lib import options, utils
 
 
 
@@ -87,13 +87,11 @@ def analyse_datasets(project, ds_ids):
 
 def load_records(ds_ids):
 
-    gl = SETTINGS.DIR_GROUPING_LEVEL
     records = collections.OrderedDict()
 
     for ds_id in ds_ids:
 
-        parts = ds_id.split('.')
-        grouped_ds_id = '/'.join(parts[:-gl]) + '/' + '.'.join(parts[-gl:])
+        grouped_ds_id = utils.get_grouped_ds_id(ds_id)
 
         json_path = SETTINGS.JSON_OUTPUT_PATH.format(**vars())
 

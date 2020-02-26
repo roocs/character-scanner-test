@@ -145,7 +145,7 @@ class CharacterExtractor(object):
         self._extract()
 
     def _extract(self):
-        ds = xr.open_mfdataset(self._files)
+        ds = xr.open_mfdataset(self._files, use_cftime=True, combine='by_coords')
         print('[WARN] NEED TO CHECK NUMBER OF VARS/DOMAINS RETURNED HERE')
         print('[WARN] DOES NOT CHECK YET WHETHER WE MIGHT GET 2 DOMAINS/VARIABLES BACK FROM MULTI-FILE OPEN')
         # Get content by variable
