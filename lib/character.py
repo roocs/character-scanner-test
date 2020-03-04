@@ -1,5 +1,6 @@
 import xarray as xr
 import numpy as np
+from datetime import datetime
 
 
 # NOTE THESE ARE COMMON WITH clisops - need to merge!!!
@@ -136,9 +137,18 @@ def get_data_info(da, mode):
     }
 
 
+def get_scan_metadata(mode, location):
+
+    return {
+        'mode': mode,
+        'last_scanned': datetime.now().isoformat(),
+        'location': location,
+    }
+
+
 class CharacterExtractor(object):
 
-    def __init__(self, files, mode, var_id, expected_attrs=None):
+    def __init__(self, files, mode, location, var_id, expected_attrs=None):
         """
         Open files as an Xarray MultiFile Dataset and extract character as a dictionary.
         Takes a dataset and extracts characteristics from it.
@@ -149,6 +159,7 @@ class CharacterExtractor(object):
         self._files = files
         self._var_id = var_id
         self._mode = mode
+        self._location = location
         self._expected_attrs = expected_attrs
         self._extract()
 
@@ -160,6 +171,7 @@ class CharacterExtractor(object):
         da = ds[self._var_id]
 
         self.character = {
+            "scan_metadata": get_scan_metadata(self._mode, self._location),
             "variable": get_variable_metadata(da),
             "coordinates": get_coords(da),
             "global_attrs": get_global_attrs(ds, self._expected_attrs),
@@ -169,6 +181,6 @@ class CharacterExtractor(object):
         print('[WARN] What about _FillValue ???')
 
 
-def extract_character(files, mode, var_id,  expected_attrs=None):
-    ce = CharacterExtractor(files, mode, var_id, expected_attrs=expected_attrs)
+def extract_character(files, mode, location, var_id,  expected_attrs=None):
+    ce = CharacterExtractor(files, mode, location, var_id, expected_attrs=expected_attrs)
     return ce.character

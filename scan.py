@@ -26,6 +26,7 @@ def _get_arg_parser():
     """
     parser = argparse.ArgumentParser()
     project_options = options.known_projects
+    location_options = options.locations
 
     parser.add_argument(
         "project",
@@ -86,6 +87,14 @@ def _get_arg_parser():
              'max and min values while a quick scan excludes them. Defaults to quick.'
     )
 
+    parser.add_argument(
+        "location",
+        nargs=1,
+        type=str,
+        choices=location_options,
+        help=f'Location of scan, must be one of: {location_options}'
+    )
+
     return parser
 
 
@@ -109,8 +118,9 @@ def parse_args():
     facets = _to_dict(args.facets)
     exclude = _to_list(args.exclude)
     mode = args.mode[0]
+    location = args.location[0]
     
-    return project, ds_ids, paths, facets, exclude, mode
+    return project, ds_ids, paths, facets, exclude, mode, location
 
 
 def to_json(character, output_path):
@@ -171,7 +181,7 @@ def get_dataset_paths(project, ds_ids=None, paths=None, facets=None, exclude=Non
     return ds_paths
 
 
-def scan_datasets(project, mode, ds_ids=None, paths=None, facets=None, exclude=None):
+def scan_datasets(project, mode, location, ds_ids=None, paths=None, facets=None, exclude=None):
     """
     Loops over ESGF data sets and scans them for character.
 
@@ -205,7 +215,7 @@ def scan_datasets(project, mode, ds_ids=None, paths=None, facets=None, exclude=N
     ds_paths = get_dataset_paths(project, ds_ids=ds_ids, paths=paths, facets=facets, exclude=exclude)
 
     for ds_id, ds_path in ds_paths.items():
-        scanner = scan_dataset(project, ds_id, ds_path, mode)
+        scanner = scan_dataset(project, ds_id, ds_path, mode, location)
 
         count += 1
         if scanner is False:
@@ -262,7 +272,7 @@ def analyse_facets(project, ds_id):
     return dict(zip(facet_names, facet_values))
 
 
-def scan_dataset(project, ds_id, ds_path, mode):
+def scan_dataset(project, ds_id, ds_path, mode, location):
     """
     Scans a set of files found under the `ds_path`.
 
@@ -275,11 +285,14 @@ def scan_dataset(project, ds_id, ds_path, mode):
     :param project: top-level project, e.g. "cmip5", "cmip6" or "cordex" (case-insensitive)
     :param ds_id: dataset identifier (DSID)
     :param ds_path: directory under which to scan data files.
-    :param mode:
+    :param mode: Scanning mode: can be either quick or full. A full scan returns
+                 max and min values while a quick scan excludes them. Defaults to quick.'
     :return: Boolean - indicating success of failure of scan.
     """
+    
     if project not in options.known_projects:
         raise Exception(f'Project must be one of known projects: {options.known_projects}')
+
 
     print(f'[INFO] Scanning dataset: {ds_id}\n\t\t{ds_path}')
     facets = analyse_facets(project, ds_id)
@@ -310,7 +323,7 @@ def scan_dataset(project, ds_id, ds_path, mode):
     expected_facets = options.facet_rules[project]
 
     try:
-        character = extract_character(nc_files, mode, var_id=facets['variable'], expected_attrs=expected_facets)
+        character = extract_character(nc_files, mode, location, var_id=facets['variable'], expected_attrs=expected_facets)
     except Exception as exc:
         print(f'[ERROR] Could not load Xarray Dataset for: {ds_path}')
         print(f'[ERROR] Files: {nc_files}')
@@ -340,8 +353,8 @@ def main():
     """
     Runs script if called on command line
     """
-    project, ds_ids, paths, facets, exclude, mode = parse_args()
-    scan_datasets(project, mode, ds_ids, paths, facets, exclude)
+    project, ds_ids, paths, facets, exclude, mode, location = parse_args()
+    scan_datasets(project, mode, location, ds_ids, paths, facets, exclude)
 
 
 if __name__ == "__main__":
