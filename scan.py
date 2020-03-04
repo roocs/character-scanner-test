@@ -72,7 +72,18 @@ def _get_arg_parser():
         type=str,
         default=None,
         required=False,
-        help=f'Regular expressions for excluding paths from being scanned'
+        help='Regular expressions for excluding paths from being scanned'
+    )
+
+    parser.add_argument(
+        "-m",
+        "--mode",
+        nargs=1,
+        type=str,
+        default="quick",
+        required=False,
+        help='Scanning mode: can be either quick or full. A full scan returns '
+             'max and min values while a quick scan excludes them. Defaults to quick.'
     )
 
     return parser
@@ -97,8 +108,9 @@ def parse_args():
     paths = _to_list(args.paths)
     facets = _to_dict(args.facets)
     exclude = _to_list(args.exclude)
-
-    return project, ds_ids, paths, facets, exclude
+    mode = args.mode[0]
+    
+    return project, ds_ids, paths, facets, exclude, mode
 
 
 def to_json(character, output_path):
@@ -159,7 +171,7 @@ def get_dataset_paths(project, ds_ids=None, paths=None, facets=None, exclude=Non
     return ds_paths
 
 
-def scan_datasets(project, ds_ids=None, paths=None, facets=None, exclude=None):
+def scan_datasets(project, mode, ds_ids=None, paths=None, facets=None, exclude=None):
     """
     Loops over ESGF data sets and scans them for character.
 
@@ -180,6 +192,8 @@ def scan_datasets(project, ds_ids=None, paths=None, facets=None, exclude=None):
     :param paths: sequence of file paths to scan for NetCDF files under, OR None.
     :param facets: dictionary of facet values to limit the search, OR None.
     :param exclude: list of regular expressions to exclude in file paths, OR None.
+    :param mode: Scanning mode: can be either quick or full. A full scan returns
+                 max and min values while a quick scan excludes them. Default is quick.
     :return: Dictionary of {"success": list of DSIDs that were successfully scanned,
                             "failed": list of DSIDs that failed to scan}
     """
@@ -191,7 +205,7 @@ def scan_datasets(project, ds_ids=None, paths=None, facets=None, exclude=None):
     ds_paths = get_dataset_paths(project, ds_ids=ds_ids, paths=paths, facets=facets, exclude=exclude)
 
     for ds_id, ds_path in ds_paths.items():
-        scanner = scan_dataset(project, ds_id, ds_path)
+        scanner = scan_dataset(project, ds_id, ds_path, mode)
 
         count += 1
         if scanner is False:
@@ -248,7 +262,7 @@ def analyse_facets(project, ds_id):
     return dict(zip(facet_names, facet_values))
 
 
-def scan_dataset(project, ds_id, ds_path):
+def scan_dataset(project, ds_id, ds_path, mode):
     """
     Scans a set of files found under the `ds_path`.
 
@@ -261,6 +275,7 @@ def scan_dataset(project, ds_id, ds_path):
     :param project: top-level project, e.g. "cmip5", "cmip6" or "cordex" (case-insensitive)
     :param ds_id: dataset identifier (DSID)
     :param ds_path: directory under which to scan data files.
+    :param mode:
     :return: Boolean - indicating success of failure of scan.
     """
     if project not in options.known_projects:
@@ -295,7 +310,7 @@ def scan_dataset(project, ds_id, ds_path):
     expected_facets = options.facet_rules[project]
 
     try:
-        character = extract_character(nc_files, var_id=facets['variable'], expected_attrs=expected_facets)
+        character = extract_character(nc_files, mode, var_id=facets['variable'], expected_attrs=expected_facets)
     except Exception as exc:
         print(f'[ERROR] Could not load Xarray Dataset for: {ds_path}')
         print(f'[ERROR] Files: {nc_files}')
@@ -325,8 +340,8 @@ def main():
     """
     Runs script if called on command line
     """
-    project, ds_ids, paths, facets, exclude = parse_args()
-    scan_datasets(project, ds_ids, paths, facets, exclude)
+    project, ds_ids, paths, facets, exclude, mode = parse_args()
+    scan_datasets(project, mode, ds_ids, paths, facets, exclude)
 
 
 if __name__ == "__main__":
