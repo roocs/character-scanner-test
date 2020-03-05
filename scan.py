@@ -308,7 +308,7 @@ def scan_dataset(project, ds_id, ds_path, mode, location):
     if project not in options.known_projects:
         raise Exception(f'Project must be one of known projects: {options.known_projects}')
 
-    print(f'[INFO] Scanning dataset: {ds_id}\n\t\t{ds_path}')
+    print(f'[INFO] Scanning dataset: {ds_id}\n\t\t{ds_path} in {mode} mode ')
     facets = analyse_facets(project, ds_id)
 
     # Generate output file paths
@@ -331,6 +331,7 @@ def scan_dataset(project, ds_id, ds_path, mode, location):
             if check:
                 print(f'[INFO] Already ran for: {ds_id} in full mode')
                 return True
+
 
     # Delete previous failure files and log files
     for file_key in ('no_files_error', 'extract_error', 'write_error'):
