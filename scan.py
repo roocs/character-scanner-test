@@ -119,7 +119,7 @@ def parse_args():
     exclude = _to_list(args.exclude)
     mode = args.mode[0]
     location = args.location[0]
-    
+
     return project, ds_ids, paths, facets, exclude, mode, location
 
 
@@ -158,7 +158,7 @@ def get_dataset_paths(project, ds_ids=None, paths=None, facets=None, exclude=Non
         for dsid in ds_ids:
             if not dsid: continue
 
-            ds_path = utils.switch_ds(project, dsid) 
+            ds_path = utils.switch_ds(project, dsid)
             ds_paths[dsid] = ds_path
 
     # Else use facets if they exist
@@ -166,12 +166,11 @@ def get_dataset_paths(project, ds_ids=None, paths=None, facets=None, exclude=Non
 
         facet_order = options.facet_rules[project]
         facets_as_path = '/'.join([facets.get(_, '*') for _ in facet_order])
-     
+
         pattern = os.path.join(base_dir, facets_as_path)
         print(f'[INFO] Finding dataset paths for pattern: {pattern}')
-        
+
         for ds_path in glob.glob(pattern):
- 
             dsid = utils.switch_ds(project, ds_path)
             ds_paths[dsid] = ds_path
 
@@ -241,7 +240,6 @@ def _get_output_paths(project, ds_id):
     grouped_ds_id = utils.get_grouped_ds_id(ds_id)
 
     paths = {
-        'success': SETTINGS.SUCCESS_PATH.format(**vars()),
         'json': SETTINGS.JSON_OUTPUT_PATH.format(**vars()),
         'no_files_error': SETTINGS.NO_FILES_PATH.format(**vars()),
         'extract_error': SETTINGS.EXTRACT_ERROR_PATH.format(**vars()),
@@ -272,6 +270,23 @@ def analyse_facets(project, ds_id):
     return dict(zip(facet_names, facet_values))
 
 
+def is_registered(json_path):
+    if os.path.exists(json_path):
+        return True
+    else:
+        return False
+
+
+def _check_for_min_max(json_path):
+    data = json.load(open(json_path))
+    mx = data["data"]["max"]
+    mn = data["data"]["min"]
+    if mx and mn:
+        return True
+    else:
+        return False
+
+
 def scan_dataset(project, ds_id, ds_path, mode, location):
     """
     Scans a set of files found under the `ds_path`.
@@ -289,10 +304,9 @@ def scan_dataset(project, ds_id, ds_path, mode, location):
                  max and min values while a quick scan excludes them. Defaults to quick.'
     :return: Boolean - indicating success of failure of scan.
     """
-    
+
     if project not in options.known_projects:
         raise Exception(f'Project must be one of known projects: {options.known_projects}')
-
 
     print(f'[INFO] Scanning dataset: {ds_id}\n\t\t{ds_path}')
     facets = analyse_facets(project, ds_id)
@@ -300,9 +314,21 @@ def scan_dataset(project, ds_id, ds_path, mode, location):
     # Generate output file paths
     outputs = _get_output_paths(project, ds_id)
 
-    if os.path.exists(outputs['success']):
-        print(f'[INFO] Already ran for: {ds_id}')
-        return True
+    # check json file exists
+    registration = is_registered(outputs["json"])
+    if registration:
+        data = json.load(open(outputs["json"]))
+        mode = data["scan_metadata"]["mode"]
+
+        if mode == 'quick':
+            print(f'[INFO] Already ran for: {ds_id} in quick mode')
+            return True
+
+        if mode == 'full':
+            check = _check_for_min_max(outputs["json"])
+            if check:
+                print(f'[INFO] Already ran for: {ds_id} in full mode')
+                return True
 
     # Delete previous failure files and log files
     for file_key in ('no_files_error', 'extract_error', 'write_error'):
@@ -323,7 +349,8 @@ def scan_dataset(project, ds_id, ds_path, mode, location):
     expected_facets = options.facet_rules[project]
 
     try:
-        character = extract_character(nc_files, mode, location, var_id=facets['variable'], expected_attrs=expected_facets)
+        character = extract_character(nc_files, mode, location, var_id=facets['variable'],
+                                      expected_attrs=expected_facets)
     except Exception as exc:
         print(f'[ERROR] Could not load Xarray Dataset for: {ds_path}')
         print(f'[ERROR] Files: {nc_files}')
@@ -344,8 +371,6 @@ def scan_dataset(project, ds_id, ds_path, mode, location):
         open(outputs['write_error'], 'w')
         return False
 
-    # Create success file
-    open(outputs['success'], 'w')
     print(f'[INFO] Wrote JSON file: {outputs["json"]}')
 
 
