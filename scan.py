@@ -317,6 +317,8 @@ def scan_dataset(project, ds_id, ds_path, mode, location):
     # check json file exists
     registration = is_registered(outputs["json"])
     if registration:
+
+        # if json file exists get mode
         data = json.load(open(outputs["json"]))
         mode = data["scan_metadata"]["mode"]
 
