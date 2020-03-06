@@ -352,8 +352,8 @@ def scan_dataset(project, ds_id, ds_path, mode, location):
     expected_facets = options.facet_rules[project]
 
     try:
-        character = extract_character(nc_files, mode, location, var_id=facets['variable'],
-                                      expected_attrs=expected_facets)
+        character = extract_character(nc_files, location, var_id=facets['variable'],
+                                      mode=full, expected_attrs=expected_facets, )
     except Exception as exc:
         print(f'[ERROR] Could not load Xarray Dataset for: {ds_path}')
         print(f'[ERROR] Files: {nc_files}')
