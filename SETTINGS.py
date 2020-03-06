@@ -18,5 +18,5 @@ NO_FILES_PATH = join(BASE_LOG_DIR, 'failure/no_files/{grouped_ds_id}.log')
 EXTRACT_ERROR_PATH = join(BASE_LOG_DIR, 'failure/extract_error/{grouped_ds_id}.log')
 WRITE_ERROR_PATH = join(BASE_LOG_DIR, 'failure/write_error/{grouped_ds_id}.log')
 
-FIX_PATH = join(BASE_LOG_DIR, 'fixes/{grouped_ds_id}.json')
+FIX_PATH = join(_base_path, 'fixes/{grouped_ds_id}.json')
 
