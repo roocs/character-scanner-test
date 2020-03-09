@@ -12,6 +12,8 @@ import scan
 
 def setup_module(module):
     options.project_base_dirs['cmip5'] = 'mini-esgf-data/test_data/badc/cmip5/data'
+    module.base_dir = options.project_base_dirs['cmip5']
+
 
 # def test_parser():
 #     sys.argv = "scan.py -m MOHC/HadGEM2-ES -exp historical -e r1i1p1 -v rh".split()
@@ -139,7 +141,7 @@ def test_varying_coords_example_fail(create_netcdf_file, create_netcdf_file_2):
 
 def test_varying_coords_example_succeed():
     """ Tests what happens when opening files as mfdataset for which the coordinates vary """
-    ds = xr.open_mfdataset('/badc/cmip5/data/cmip5/output1/MOHC/HadGEM2-ES/historical/mon/land/Lmon/r1i1p1/latest/rh/*.nc')
+    ds = xr.open_mfdataset(f'{base_dir}/cmip5/output1/MOHC/HadGEM2-ES/historical/mon/land/Lmon/r1i1p1/latest/rh/*.nc')
 
     if not ds.rh.shape == (1752, 145, 192):
         raise Exception(f'variable is not the correct shape: should be (1752,145,192) but is {ds.rh.shape}')
