@@ -1,4 +1,3 @@
 # Version of xarray needed to fulfil: Issue: #14
 xarray>=0.15
-json
 netCDF4
