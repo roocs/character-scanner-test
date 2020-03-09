@@ -4,7 +4,7 @@ project_base_dirs = {
     'cordex': '/badc/cordex/data',
     'c3s-cmip5': '/group_workspaces/jasmin2/cp4cds1/data',
     'c3s-cmip6': 'NOT DEFINED YET',
-    'c3s-cordex': '/group_workspaces/jasmin2/cp4cds1/data/c3s-cordex',
+    'c3s-cordex': '/group_workspaces/jasmin2/cp4cds1/data',
 }
 
 known_projects = project_base_dirs.keys()

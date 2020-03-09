@@ -10,6 +10,6 @@ run-tests:
     - pip install -r requirements.txt
     - git submodule update --init --recursive --remote --merge
   script:
-    - python -m pytest test
+    - python -m pytest test --deselect test_base_dirs.py
   only:
     - pushes

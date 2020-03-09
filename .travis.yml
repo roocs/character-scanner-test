@@ -8,4 +8,4 @@ jobs:
       before_script:
         - pip install -r requirements.txt
 #        - git submodule update --recursive --remote --merge
-      script: python -m pytest test
+      script: python -m pytest test --deselect test_base_dirs.py
