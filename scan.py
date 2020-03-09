@@ -88,9 +88,12 @@ def _get_arg_parser():
     )
 
     parser.add_argument(
-        "location",
+        "-l", 
+        "--location",
         nargs=1,
         type=str,
+        default="ceda",
+        required=True,
         choices=location_options,
         help=f'Location of scan, must be one of: {location_options}'
     )
