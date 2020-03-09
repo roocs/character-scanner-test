@@ -10,6 +10,7 @@ import numpy as np
 from lib import character, options
 import scan
 
+
 def setup_module(module):
     options.project_base_dirs['cmip5'] = 'mini-esgf-data/test_data/badc/cmip5/data'
     module.base_dir = options.project_base_dirs['cmip5']
