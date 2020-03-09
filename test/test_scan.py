@@ -151,9 +151,9 @@ def test_varying_coords_example_succeed():
 @pytest.mark.skip(reason="Exception was: Cannot compare type 'Timestamp' with type 'DatetimeProlepticGregorian'")
 def test_time_axis_types_issue():
     nc_files = [
-        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        f'{base_dir}/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
         '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_200601-210012.nc',
-        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        f'{base_dir}/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
         '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_210101-230012.nc']
 
     ds = xr.open_mfdataset(nc_files)
@@ -180,9 +180,9 @@ def test_time_axis_types_issue_fix():
     # must be using xarray version 0.15
 
     nc_files = [
-        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        f'{base_dir}/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
         '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_200601-210012.nc',
-        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        f'{base_dir}/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
         '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_210101-230012.nc']
 
     ds = xr.open_mfdataset(nc_files, use_cftime=True, combine='by_coords')
@@ -194,9 +194,9 @@ def test_time_axis_types_issue_fix():
 
 def test_time_max_as_strftime():
     nc_files = [
-        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        f'{base_dir}/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
         '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_200601-210012.nc',
-        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        f'{base_dir}/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
         '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_210101-230012.nc']
 
     ds = xr.open_mfdataset(nc_files, use_cftime=True, combine='by_coords')
@@ -210,9 +210,9 @@ def test_time_max_as_strftime():
 
 def test_time_max_as_strftime_to_json():
     nc_files = [
-        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        f'{base_dir}/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
         '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_200601-210012.nc',
-        '/badc/cmip5/data/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
+        f'{base_dir}/cmip5/output1/MPI-M/MPI-ESM-LR/rcp45/mon/ocean/Omon/r1i1p1/latest/zostoga'
         '/zostoga_Omon_MPI-ESM-LR_rcp45_r1i1p1_210101-230012.nc']
 
     ds = xr.open_mfdataset(nc_files, use_cftime=True, combine='by_coords')
@@ -238,7 +238,7 @@ def test_nan_for_value_min_and_max():
 
 
 def test_min_max_reproduce_nan():
-    fpath = "/badc/cmip5/data/cmip5/output1/MOHC/HadGEM2-ES/historical/mon/land/Lmon/r1i1p1/latest/rh/*.nc"
+    fpath = f"{base_dir}/cmip5/output1/MOHC/HadGEM2-ES/historical/mon/land/Lmon/r1i1p1/latest/rh/*.nc"
     ds = xr.open_mfdataset(fpath, combine='by_coords')
     data = ds.rh.values
     mx = data.max()
