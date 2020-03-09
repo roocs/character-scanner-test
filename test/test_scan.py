@@ -7,9 +7,11 @@ import os
 import json
 import numpy as np
 
-import lib.character
+from lib import character, options
 import scan
 
+def setup_module(module):
+    options.project_base_dirs['cmip5'] = 'mini-esgf-data/test_data/badc/cmip5/data'
 
 # def test_parser():
 #     sys.argv = "scan.py -m MOHC/HadGEM2-ES -exp historical -e r1i1p1 -v rh".split()
@@ -245,3 +247,7 @@ def test_min_max_value():
     ds = xr.open_mfdataset(fpath, combine='by_coords')
     mx = float(ds.rh.max())
     assert np.isfinite(mx)
+
+
+def teardown_module(module):
+    options.project_base_dirs['cmip5'] = 'mini-esgf-data/test_data/badc/cmip5/data'

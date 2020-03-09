@@ -1,0 +1,11 @@
+language: python
+stages:
+  - test
+
+jobs:
+  include:
+    - stage: test
+      before_script:
+        - pip install -r requirements_dev.txt
+        - git submodule update --init --recursive
+      script: python -m pytest test

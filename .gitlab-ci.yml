@@ -1,0 +1,15 @@
+stages:
+  - test
+
+run-tests:
+  stage: test
+  image: python:3.7
+  before_script:
+    - pip install numpy
+    - pip install six
+    - pip install -r requirements.txt
+    - git submodule update --init --recursive
+  script:
+    - python -m pytest test
+  only:
+    - pushes

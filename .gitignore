@@ -1,6 +1,6 @@
 venv
 
-ALL_OUTPUTS
+outputs
 
 *.pyc
 */__pycache__
