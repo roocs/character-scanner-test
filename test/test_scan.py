@@ -139,7 +139,7 @@ def test_varying_coords_example_fail(create_netcdf_file, create_netcdf_file_2):
 
     # seems to keep one variable but joins the coordinate lists together
 
-
+@pytest.mark.skip(reason="Can't test for this shape when using test data")
 def test_varying_coords_example_succeed():
     """ Tests what happens when opening files as mfdataset for which the coordinates vary """
     ds = xr.open_mfdataset(f'{base_dir}/cmip5/output1/MOHC/HadGEM2-ES/historical/mon/land/Lmon/r1i1p1/latest/rh/*.nc')
@@ -254,3 +254,4 @@ def test_min_max_value():
 
 def teardown_module(module):
     options.project_base_dirs['cmip5'] = 'mini-esgf-data/test_data/badc/cmip5/data'
+    module.base_dir = options.project_base_dirs['cmip5']
