@@ -8,7 +8,7 @@ run-tests:
     - pip install numpy
     - pip install six
     - pip install -r requirements.txt
-    - git submodule update --recursive --remote --merge
+#    - git submodule update --recursive --remote --merge
   script:
     - python -m pytest test
   only:
