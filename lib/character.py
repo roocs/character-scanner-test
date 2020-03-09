@@ -107,6 +107,9 @@ def _copy_dict_for_json(dct):
 def get_variable_metadata(da):
     d = _copy_dict_for_json(da.attrs)
     d['var_id'] = da.name
+
+    # Encode _FillValue as string because representation may be strange
+    d['_FillValue'] = str(da.encoding.get('_FillValue', 'NOT_DEFINED'))
     return d
 
 
@@ -177,8 +180,6 @@ class CharacterExtractor(object):
             "global_attrs": get_global_attrs(ds, self._expected_attrs),
             "data": get_data_info(da, self._mode)
         }
-
-        print('[WARN] What about _FillValue ???')
 
 
 def extract_character(files, location, var_id, mode='full', expected_attrs=None):
