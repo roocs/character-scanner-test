@@ -246,7 +246,7 @@ def test_min_max_reproduce_nan():
 
 
 def test_min_max_value():
-    fpath = "/badc/cmip5/data/cmip5/output1/MOHC/HadGEM2-ES/historical/mon/land/Lmon/r1i1p1/latest/rh/*.nc"
+    fpath = f"{base_dir}/cmip5/output1/MOHC/HadGEM2-ES/historical/mon/land/Lmon/r1i1p1/latest/rh/*.nc"
     ds = xr.open_mfdataset(fpath, combine='by_coords')
     mx = float(ds.rh.max())
     assert np.isfinite(mx)
