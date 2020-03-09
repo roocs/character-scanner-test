@@ -6,6 +6,8 @@ project_base_dirs = {
 
 known_projects = project_base_dirs.keys()
 
+locations = ['ceda', 'dkrz', 'other']
+
 facet_rules = {
     'cmip5': 'activity product institute model experiment frequency realm mip_table ensemble_member version variable'.split(),
     'cmip6': 'mip_era activity_id institution_id source_id experiment_id member_id table_id variable_id grid_label version'.split(),
