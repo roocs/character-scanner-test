@@ -148,7 +148,7 @@ def get_scan_metadata(mode, location):
 
 class CharacterExtractor(object):
 
-    def __init__(self, files, mode, location, var_id, expected_attrs=None):
+    def __init__(self, files, location, var_id, mode, expected_attrs=None):
         """
         Open files as an Xarray MultiFile Dataset and extract character as a dictionary.
         Takes a dataset and extracts characteristics from it.
@@ -181,6 +181,6 @@ class CharacterExtractor(object):
         print('[WARN] What about _FillValue ???')
 
 
-def extract_character(files, mode, location, var_id,  expected_attrs=None):
-    ce = CharacterExtractor(files, mode, location, var_id, expected_attrs=expected_attrs)
+def extract_character(files, location, var_id, mode='full', expected_attrs=None):
+    ce = CharacterExtractor(files, location, var_id, mode, expected_attrs=expected_attrs)
     return ce.character
