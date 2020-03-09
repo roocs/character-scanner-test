@@ -1,5 +1,6 @@
 import xarray as xr
 import numpy as np
+from datetime import datetime
 
 
 # NOTE THESE ARE COMMON WITH clisops - need to merge!!!
@@ -117,21 +118,37 @@ def get_global_attrs(ds, expected_attrs=None):
     return d
 
 
-def get_data_info(da):
-    data = da.values
+def get_data_info(da, mode):
+    if mode == 'full':
+        data = da.values
+        mx = float(data.max())
+        mn = float(data.min())
+
+    else:
+        mx = None
+        mn = None
 
     return {
-        'min': float(data.min()),
-        'max': float(data.max()),
+        'min': mn,
+        'max': mx,
         'shape': list(da.shape),
         'rank': len(da.shape),
         'coord_names': [_ for _ in da.coords.keys()]
     }
 
 
+def get_scan_metadata(mode, location):
+
+    return {
+        'mode': mode,
+        'last_scanned': datetime.now().isoformat(),
+        'location': location,
+    }
+
+
 class CharacterExtractor(object):
 
-    def __init__(self, files, var_id, expected_attrs=None):
+    def __init__(self, files, location, var_id, mode, expected_attrs=None):
         """
         Open files as an Xarray MultiFile Dataset and extract character as a dictionary.
         Takes a dataset and extracts characteristics from it.
@@ -141,6 +158,8 @@ class CharacterExtractor(object):
         """
         self._files = files
         self._var_id = var_id
+        self._mode = mode
+        self._location = location
         self._expected_attrs = expected_attrs
         self._extract()
 
@@ -152,15 +171,16 @@ class CharacterExtractor(object):
         da = ds[self._var_id]
 
         self.character = {
+            "scan_metadata": get_scan_metadata(self._mode, self._location),
             "variable": get_variable_metadata(da),
             "coordinates": get_coords(da),
             "global_attrs": get_global_attrs(ds, self._expected_attrs),
-            "data": get_data_info(da)
+            "data": get_data_info(da, self._mode)
         }
 
         print('[WARN] What about _FillValue ???')
 
 
-def extract_character(files, var_id, expected_attrs=None):
-    ce = CharacterExtractor(files, var_id, expected_attrs=expected_attrs)
+def extract_character(files, location, var_id, mode='full', expected_attrs=None):
+    ce = CharacterExtractor(files, location, var_id, mode, expected_attrs=expected_attrs)
     return ce.character
