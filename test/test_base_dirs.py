@@ -30,3 +30,4 @@ def test_c3s_cordex_base_dir():
     result = scan_datasets(project='c3s-cordex', ds_ids=c3s_cordex_id, paths=options.project_base_dirs['c3s-cordex'],
                            mode='quick', location='ceda')
     assert os.path.exists("./outputs/register/c3s-cordex/output/EUR-11/CNRM/CNRM-CERFACS-CNRM-CM5/rcp45/r1i1p1/CNRM-ALADIN53/v1.day.tas.v20150127.json")
+
