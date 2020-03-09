@@ -140,6 +140,66 @@ def to_json(character, output_path):
         json.dump(character, writer, indent=4, sort_keys=True)
 
 
+def _get_ds_paths_from_paths(paths, project):
+    """
+    Return an OrderedDict of {<ds_id>: <ds_path>} found under the paths provided
+    as `paths` (a sequence of directory/file paths).
+
+    :param paths: (sequence) directory/file paths
+    :param project: top-level project, e.g. "cmip5", "cmip6" or "cordex" (case-insensitive) 
+    :return: OrderedDict of {<ds_id>: <ds_path>}
+    """
+    base_dir = options.project_base_dirs[project]
+
+    # Check paths first
+    bad_paths = []
+
+    for pth in paths:
+        if not pth.startswith(base_dir):
+            bad_paths.append(pth)
+
+    if bad_paths:
+        raise Exception(f'Invalid paths provided: {bad_paths}')
+
+    
+    ds_paths = collections.OrderedDict()
+    
+    for pth in paths:
+        
+        print(f'[INFO] Searching for datasets under: {pth}')
+        facet_order = options.facet_rules[project]
+        facets_in_path = pth.replace(base_dir, '').strip('/').split('/')
+
+        facets = {}
+         
+        for i, facet_name in enumerate(facet_order):
+            if len(facets_in_path) <= i:
+                break
+
+            facets[facet_name] = facets_in_path[i]
+
+        # Fix facet version if not set
+        if not facets.get('version'):
+            facets['version'] = 'latest'
+
+        facets_as_path = '/'.join([facets.get(_, '*') for _ in facet_order])
+    
+        # Remove anything matching "files"
+        if '/files' in facets_as_path:
+            continue
+
+        #TODO: This is repet code of below. Suggest we create a module/class
+        #      to manage all mapping of different args to resolve to ds_paths dictionary, later.
+        pattern = os.path.join(base_dir, facets_as_path)
+        print(f'[INFO] Finding dataset paths for pattern: {pattern}')
+
+        for ds_path in glob.glob(pattern):
+            dsid = utils.switch_ds(project, ds_path)
+            ds_paths[dsid] = ds_path
+
+    return ds_paths
+
+
 def get_dataset_paths(project, ds_ids=None, paths=None, facets=None, exclude=None):
     """
     Converts the input arguments into an Ordered Dictionary of {DSID: directory} items.
@@ -176,6 +236,10 @@ def get_dataset_paths(project, ds_ids=None, paths=None, facets=None, exclude=Non
         for ds_path in glob.glob(pattern):
             dsid = utils.switch_ds(project, ds_path)
             ds_paths[dsid] = ds_path
+
+    elif paths:
+ 
+        ds_paths = _get_ds_paths_from_paths(paths, project)
 
     else:
         raise NotImplementedError('Code currently breaks if not using "ds_ids" argument.')
@@ -353,10 +417,15 @@ def scan_dataset(project, ds_id, ds_path, mode, location):
 
     # Open files with Xarray and get character
     expected_facets = options.facet_rules[project]
+    var_id = options.get_facet('variable', facets, project)
+
+    character = extract_character(nc_files, location, var_id=var_id,
+                                      mode=mode, expected_attrs=expected_facets)
+
 
     try:
-        character = extract_character(nc_files, location, var_id=facets['variable'],
-                                      mode=mode, expected_attrs=expected_facets, )
+        character = extract_character(nc_files, location, var_id=var_id,
+                                      mode=mode, expected_attrs=expected_facets)
     except Exception as exc:
         print(f'[ERROR] Could not load Xarray Dataset for: {ds_path}')
         print(f'[ERROR] Files: {nc_files}')
