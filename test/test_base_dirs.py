@@ -26,8 +26,8 @@ def test_c3s_cmip6_base_dir():
 
 def test_c3s_cordex_base_dir():
     """ Checks definition of c3s cordex base dir resolves to a real directory"""
-    c3s_cordex_id = ["c3s-cordex.output.EUR-11.IPSL.MOHC-HadGEM2-ES.rcp85.r1i1p1."
-                     "IPSL-WRF381P.v1.day.ps1.v20190212"]
+    c3s_cordex_id = ["c3s-cordex.output.EUR-11.CNRM.CNRM-CERFACS-CNRM-CM5.rcp45.r1i1p1.CNRM-ALADIN53.v1.day.tas.v20150127"]
     result = scan_datasets(project='c3s-cordex', ds_ids=c3s_cordex_id, paths=options.project_base_dirs['c3s-cordex'],
                            mode='quick', location='ceda')
-    assert os.path.exists("./outputs/register/c3s-cordex/output/EUR-11/IPSL/MOHC-HadGEM2-ES/rcp85/r1i1p1/IPSL-WRF381P/v1.day.tas.v20190212.json")
+    assert os.path.exists("./outputs/register/c3s-cordex/output/EUR-11/CNRM/CNRM-CERFACS-CNRM-CM5/rcp45/r1i1p1/CNRM-ALADIN53/v1.day.tas.v20150127.json")
+
