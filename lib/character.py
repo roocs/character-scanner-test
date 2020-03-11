@@ -94,9 +94,9 @@ def _copy_dict_for_json(dct):
 
     for key, value in dct.items():
         
-        if isinstance(value, np.floating):
+        if type(value) == np.float64:
             value = float(value)
-        elif isinstance(value, np.integer):
+        elif type(value) == np.int32:
             value = int(value)
 
         d[key] = value
