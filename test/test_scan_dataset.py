@@ -1,5 +1,6 @@
 import json
 import pytest
+import os
 
 from scan import scan_datasets
 from lib import options
@@ -20,6 +21,19 @@ def test_corrupt_json_file():
         scan_datasets(project='c3s-cordex', ds_ids=ds_id, paths=options.project_base_dirs['c3s-cordex'],
                       mode='quick', location='ceda')
     except json.decoder.JSONDecodeError as exc:
+        pass
+
+
+def test_fake_corrupt_json_file(tmpdir):
+    """ Creates a bad JSON file and tests the code responds properly"""
+    try:
+        d = tmpdir.mkdir("./testdir")
+        bad_json = d.join("bad_json.txt")
+        bad_json.write('{"test": }')
+        filename = os.path.join(bad_json.dirname, bad_json.basename)
+        json.load(open(filename))
+    except json.decoder.JSONDecodeError as exc:
+        print('[INFO] Corrupt JSON file found.')
         pass
 
 

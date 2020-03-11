@@ -385,24 +385,19 @@ def scan_dataset(project, ds_id, ds_path, mode, location):
     registration = is_registered(outputs["json"])
     if registration:
 
-        try:
-            # if json file exists get mode
-            data = json.load(open(outputs["json"]))
-            mode = data["scan_metadata"]["mode"]
+        # if json file exists get mode
+        data = json.load(open(outputs["json"]))
+        mode = data["scan_metadata"]["mode"]
 
-            if mode == 'quick':
-                print(f'[INFO] Already ran for: {ds_id} in quick mode')
+        if mode == 'quick':
+            print(f'[INFO] Already ran for: {ds_id} in quick mode')
+            return True
+
+        if mode == 'full':
+            check = _check_for_min_max(outputs["json"])
+            if check:
+                print(f'[INFO] Already ran for: {ds_id} in full mode')
                 return True
-
-            if mode == 'full':
-                check = _check_for_min_max(outputs["json"])
-                if check:
-                    print(f'[INFO] Already ran for: {ds_id} in full mode')
-                    return True
-
-        except json.decoder.JSONDecodeError as exc:
-            os.remove(outputs["json"])
-            print(f'[INFO] Corrupt JSON file. Deleting and re-running.')
 
 
     # Delete previous failure files and log files
